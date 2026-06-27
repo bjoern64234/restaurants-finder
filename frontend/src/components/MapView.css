@@ -1,0 +1,50 @@
+/* Per default hat der MapContainer eine Höhe von 0 */
+.leaflet-container {
+    height: 100vh;
+}
+
+.custom-cluster {
+    display: grid;
+    place-items: center;
+    background: #2563eb;
+    color: white;
+    border-radius: 50%;
+    font-weight: 600;
+}
+
+#preview-map {
+    border: 2px solid black;
+    border-radius: 8px;
+    width: 70px;
+    height: 70px;
+
+}
+
+.skin-button {
+    all: unset;
+    cursor: pointer;
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    z-index: 1000;
+}
+
+.skin-button:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+
+/* Attribution standardmäßig auf das "ⓘ"-Prefix zusammenklappen,
+   bei Hover/Fokus voll ausklappen. Leaflet selbst kann das nicht – reines CSS. */
+.leaflet-control-attribution {
+    overflow: hidden;
+    max-width: 2rem;
+    white-space: nowrap;
+    cursor: help;
+    transition: max-width 0.3s ease;
+}
+
+.leaflet-control-attribution:hover,
+.leaflet-control-attribution:focus-within {
+    max-width: 90vw;
+}
