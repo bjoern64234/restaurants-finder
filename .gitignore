@@ -1,1 +1,8 @@
+# Environment files
 .env
+!.env.example
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
