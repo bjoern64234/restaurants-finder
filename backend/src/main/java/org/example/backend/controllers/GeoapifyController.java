@@ -23,7 +23,10 @@ public class GeoapifyController {
     }
 
     @GetMapping("/search")
-    public SearchPlaceResponse search(@RequestParam @NotBlank(message = "lat can not be blank") String lat, @RequestParam @NotBlank(message = "lng can not be blank") String lng, @RequestParam @NotBlank(message = "radius can not be blank") String radius, @RequestParam @Positive(message = "limit must be a positive number") Integer limit) {
+    public SearchPlaceResponse search(@RequestParam @NotBlank(message = "lat can not be blank") String lat, @RequestParam @NotBlank(
+            message = "lng can not be blank") String lng, @RequestParam @NotBlank(
+            message = "radius can not be blank") String radius, @RequestParam @Positive(
+            message = "limit must be a positive number") Integer limit) {
         return this.geoapifyService.searchLocations(lat, lng, radius, limit);
     }
 }

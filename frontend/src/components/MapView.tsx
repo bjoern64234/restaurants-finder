@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
+import {useEffect, useRef, useState, type KeyboardEvent, type RefObject} from "react";
 
-import { divIcon, point, type Map as LeafletMap, type MarkerCluster } from "leaflet";
+import {divIcon, point, type Map as LeafletMap, type MarkerCluster} from "leaflet";
 import {
     AttributionControl,
     MapContainer,
@@ -17,10 +17,9 @@ import "./MapView.css";
 
 import MyLocation from "../assets/my-location.png";
 
-import { MyLocationMarker } from "./MyLocationMarker/MyLocationMarker.tsx";
-import { RestaurantMarker } from "./RestaurantMarker/RestaurantMarker.tsx";
-import { SearchRestaurantsButton } from "./SearchRestaurantsButton/SearchRestaurantsButton.tsx";
-import SettingsButton from "./SettingsButton/SettingsButton.tsx";
+import {MyLocationMarker} from "./MyLocationMarker/MyLocationMarker.tsx";
+import {RestaurantMarker} from "./RestaurantMarker/RestaurantMarker.tsx";
+import {SearchRestaurantsButton} from "./SearchRestaurantsButton/SearchRestaurantsButton.tsx";
 
 import {
     COMBINED_ATTRIBUTION,
@@ -29,12 +28,15 @@ import {
     skins,
 } from "../constants/constants.ts";
 
-import type { RestaurantFeature, RestaurantResponse } from "../types/restaurant.type.ts";
-import type { Position } from "../types/position.type.ts";
-import type { Settings } from "../types/settings.type.ts";
+import type {RestaurantFeature, RestaurantResponse} from "../types/restaurant.type.ts";
+import type {Position} from "../types/position.type.ts";
+import type {AxiosResponse} from "axios";
+import {searchNearbyRestaurants} from "../api/search-nearby-restaurants.ts";
 
 // Eine reine Verhaltenskomponente (return null)
-function SyncPreview({previewRef}: { previewRef: RefObject<LeafletMap | null> }) {
+function SyncPreview({previewRef}: {
+    previewRef: RefObject<LeafletMap | null>
+}) {
     const map = useMapEvents({
         move: () => previewRef.current?.setView(map.getCenter(), map.getZoom() - 4, {animate: false}),
         zoom: () => previewRef.current?.setView(map.getCenter(), map.getZoom() - 4, {animate: false}),
@@ -49,6 +51,18 @@ const createClusterIcon = (cluster: MarkerCluster) =>
         iconSize: point(40, 40, true),
     });
 
+// Wenige Marker beim Reinzoomen (Straße), viele beim Rauszoomen (Stadt).
+function limitForZoom(zoom: number): number {
+    const CITY_ZOOM = 11;    // rausgezoomt -> viele Ergebnisse
+    const STREET_ZOOM = 16;  // reingezoomt -> wenige Ergebnisse
+    const MAX_LIMIT = 200;
+    const MIN_LIMIT = 10;
+
+    const clamped = Math.max(CITY_ZOOM, Math.min(STREET_ZOOM, zoom));
+    const t = (clamped - CITY_ZOOM) / (STREET_ZOOM - CITY_ZOOM); // 0 = weit, 1 = nah
+    return Math.round(MAX_LIMIT + t * (MIN_LIMIT - MAX_LIMIT));   // 200 -> 10
+}
+
 export default function MapView() {
     const [mainSkin, setMainSkin] = useState<0 | 1>(0);
     const secondSkin = mainSkin === 0 ? 1 : 0;
@@ -58,11 +72,8 @@ export default function MapView() {
         lng: INITIAL_CENTER[1],
     });
     const [restaurants, setRestaurants] = useState<RestaurantFeature[]>([]);
-    const [radius, setRadius] = useState<number>(1000);
-    const [limit, setLimit] = useState<number>(10);
     const previewMapRef = useRef<LeafletMap | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
     // Fehlermeldung nach 5s automatisch ausblenden; Timer wird bei neuer Meldung/Unmount aufgeräumt
     useEffect(() => {
         if (!errorMessage) return;
@@ -74,6 +85,7 @@ export default function MapView() {
         goToMyLocation();
     }, []);
 
+
     function goToMyLocation() {
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -81,9 +93,7 @@ export default function MapView() {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                 };
-
                 setCurrentPosition(location);
-
                 mapRef.current?.flyTo([location.lat, location.lng], 15);
             },
             () => {
@@ -105,9 +115,35 @@ export default function MapView() {
         }
     }
 
-    function handleSettings(settings: Settings): void {
-        setRadius(settings.radius);
-        setLimit(settings.limit);
+    async function handleFindRestaurants() {
+        const map = mapRef.current;
+        if (!map) {
+            setErrorMessage("Karte noch nicht bereit.");
+            return;
+        }
+        const center = map.getCenter();   // exakte aktuelle Mitte, kein Zwischenstand
+        const bounds = map.getBounds();
+        const ne = bounds.getNorthEast();
+        const zoom = map.getZoom();
+
+        const MIN_RADIUS = 500;    // m – verzeiht kleinen Zentrums-Versatz beim Reinzoomen
+        const MAX_RADIUS = 50000;  // m – Geoapify-Circle-Grenze (verifizieren)
+        const halfHeight = center.distanceTo([ne.lat, center.lng]);
+        const halfWidth = center.distanceTo([center.lat, ne.lng]);
+        const viewportRadius = Math.max(halfHeight, halfWidth);
+        const radius = Math.round(Math.min(Math.max(viewportRadius, MIN_RADIUS), MAX_RADIUS));
+
+        try {
+            const res: AxiosResponse<RestaurantResponse> = await searchNearbyRestaurants({
+                lat: center.lat.toString(),
+                lng: center.lng.toString(),
+                radius: radius.toString(),
+                limit: limitForZoom(zoom),
+            });
+            setRestaurants(res.data.features);
+        } catch (error) {
+            setErrorMessage((error as Error).message);
+        }
     }
 
     return (
@@ -118,23 +154,11 @@ export default function MapView() {
                     className={"map-button"}
                     aria-label={"Zu meinem Standort springen"}
                 >
-                    <img src={MyLocation} alt={""} />
+                    <img src={MyLocation} alt={""}/>
                 </button>
-
-                {currentPosition && (
-                    <SearchRestaurantsButton
-                        lat={currentPosition.lat.toString()}
-                        lng={currentPosition.lng.toString()}
-                        radius={radius}
-                        limit={limit}
-                        onResult={(data: RestaurantResponse) => {
-                            setRestaurants(data.features)
-                        }}
-                        onError={setErrorMessage}
-                    />
-                )}
-
-                <SettingsButton settings={{radius, limit}} onSave={(settings: Settings) => handleSettings(settings)}/>
+                <SearchRestaurantsButton
+                    onClick={handleFindRestaurants}
+                />
             </div>
 
             {errorMessage && <p className={"error-message"} role={"alert"}>{errorMessage}</p>}
@@ -173,7 +197,7 @@ export default function MapView() {
 
             <div className={"skin-button"}
                  role={"button"}
-                 tabIndex={0}
+                 tabIndex={0}4
                  aria-label={"Zwischen Karten- und Satellitenansicht wechseln"}
                  onClick={toggleSkin}
                  onKeyDown={handleSkinButtonKeyDown}>

@@ -1,3 +1,5 @@
+import type {LatLngTuple} from "leaflet";
+
 export const INITIAL_CENTER: LatLngTuple = [51.5142273, 7.4652789];
 export const INITIAL_ZOOM = 15;
 
