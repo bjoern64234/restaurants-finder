@@ -18,15 +18,16 @@ public class GeoapifyService {
 
     public SearchPlaceResponse searchLocations(String lat, String lng, String radius, Integer limit) {
         return this.geoapifyRestClient.get()
-            .uri(uriBuilder -> uriBuilder
-                .path("/places")
-                .queryParam("categories", "catering.restaurant")
-                .queryParam("filter", "circle:"+lng+","+lat+","+radius)
-                .queryParam("bias", "proximity:"+lng+","+lat)
-                .queryParam("limit", limit)
-                .queryParam("apiKey", apiKey)
-                .build())
-            .retrieve()
-            .body(SearchPlaceResponse.class);
+                .uri(uriBuilder -> uriBuilder
+                        .path("/places")
+                        .queryParam("categories", "catering.restaurant")
+                        .queryParam("filter",
+                                "circle:" + lng + "," + lat + "," + radius)
+//                        .queryParam("bias", "proximity:" + lng + "," + lat)
+                        .queryParam("limit", limit)
+                        .queryParam("apiKey", apiKey)
+                        .build())
+                .retrieve()
+                .body(SearchPlaceResponse.class);
     }
 }

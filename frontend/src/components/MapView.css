@@ -79,15 +79,21 @@
 }
 
 .skin-button {
-    all: unset;
-    cursor: pointer;
     position: absolute;
     bottom: 15px;
     left: 15px;
     z-index: 1000;
 }
 
-.skin-button:focus-visible {
+.skin-button__toggle {
+    all: unset;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.skin-button__toggle:focus-visible {
     outline: 3px solid #2563eb;
     outline-offset: 2px;
 }
