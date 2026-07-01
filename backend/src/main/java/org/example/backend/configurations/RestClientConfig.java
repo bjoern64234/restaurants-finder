@@ -13,4 +13,11 @@ public class RestClientConfig {
                 .baseUrl("https://api.geoapify.com/v2")
                 .build();
     }
+
+    @Bean
+    public RestClient autocompleteRestClient() {
+        return RestClient.builder()
+                .baseUrl("https://api.geoapify.com/v1/geocode")
+                .build();
+    }
 }

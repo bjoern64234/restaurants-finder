@@ -3,6 +3,7 @@ package org.example.backend.controllers;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import org.example.backend.dtos.autocomplete.AutocompleteResult;
 import org.example.backend.dtos.search.SearchPlaceResponse;
 import org.example.backend.services.GeoapifyService;
 import org.springframework.validation.annotation.Validated;
@@ -25,5 +26,10 @@ public class GeoapifyController {
     @GetMapping("/search")
     public SearchPlaceResponse search(@RequestParam @NotBlank(message = "lat can not be blank") String lat, @RequestParam @NotBlank(message = "lng can not be blank") String lng, @RequestParam @NotBlank(message = "radius can not be blank") String radius, @RequestParam @Positive(message = "limit must be a positive number") Integer limit) {
         return this.geoapifyService.searchLocations(lat, lng, radius, limit);
+    }
+
+    @GetMapping("/autocomplete")
+    public AutocompleteResult autocomplete(@RequestParam @NotBlank(message = "address can not be blank") String query) {
+        return this.geoapifyService.autocompleteLocations(query);
     }
 }
