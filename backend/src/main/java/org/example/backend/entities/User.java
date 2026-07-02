@@ -1,9 +1,12 @@
 package org.example.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -24,6 +27,20 @@ public class User {
     @Email
     @Column(nullable = false, unique = true)
     private String email;
+
+    @NotBlank
+    @Column(nullable = false, unique = true)
+    private String username;
+
+    @NotBlank
+    @JsonIgnore
+    @Column(nullable = false)
+    private String password;
+
+    @JsonIgnore
+    private String sessionToken;
+
+    private LocalDateTime sessionTokenExpiresAt;
 
 }
 
