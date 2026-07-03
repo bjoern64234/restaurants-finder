@@ -1,0 +1,28 @@
+### Get all restaurants
+GET {{localhost}}:{{port}}/restaurants
+
+### Create a favorite restaurant
+POST {{localhost}}:{{port}}/restaurants
+Content-Type: application/json
+
+{
+  "name": "Restaurant Naxos",
+  "formatted": "Restaurant Naxos, Ulzburger Straße 279, 22850 Norderstedt, Germany",
+  "website":"https://www.restaurant-naxos.de/",
+  "openingHours": "Mo-Fr 11:30-14:30,17:00-23:00; Sa-Su 11:30-23:00",
+  "cuisine":"greek",
+  "lat": 53.7055712,
+  "lng": 9.9959691,
+  "placeId": "5132a770a9effd234059ef7f362850da4a40f00103f9018075a67e0000000092031052657374617572616e74204e61786f73"
+}
+
+> {%
+  var res = response.body
+  client.global.set("id", res.id)
+%}
+
+### Get restaurant by id
+GET {{localhost}}:{{port}}/restaurants/{{id}}
+
+### Delete restaurant by id
+DELETE {{localhost}}:{{port}}/restaurants/{{id}}
