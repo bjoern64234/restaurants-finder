@@ -1,6 +1,7 @@
 package org.example.backend.controllers;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.example.backend.dtos.auth.AuthResponse;
 import org.example.backend.dtos.auth.LoginRequest;
 import org.example.backend.dtos.auth.RegisterRequest;
@@ -10,21 +11,19 @@ import org.example.backend.repos.UserRepository;
 import org.example.backend.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api")
+@RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserRepository repo;
     private final UserService userService;
-
-    public UserController(UserRepository repo, UserService userService) {
-        this.repo = repo;
-        this.userService = userService;
-    }
 
     // REGISTER
     @PostMapping("/register")
