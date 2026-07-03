@@ -2,6 +2,7 @@ import type {LatLngTuple} from "leaflet";
 
 export const INITIAL_CENTER: LatLngTuple = [51.5142273, 7.4652789];
 export const INITIAL_ZOOM = 15;
+export const SEARCH_ZOOM = 13;
 
 export const OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 export const SATELLITE = '&copy; CNES, Airbus DS, PlanetObserver, OpenMapTiles | &copy; <a href="https://stadiamaps.com/">Stadia Maps</a>';

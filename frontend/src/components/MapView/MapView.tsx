@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState, type RefObject} from "react";
 
-import {divIcon, point, type Map as LeafletMap, type MarkerCluster} from "leaflet";
+import {divIcon, point, type Map as LeafletMap, type MarkerCluster, type LatLngTuple} from "leaflet";
 import {
     AttributionControl,
     MapContainer,
@@ -25,6 +25,7 @@ import {
     COMBINED_ATTRIBUTION,
     INITIAL_CENTER,
     INITIAL_ZOOM,
+    SEARCH_ZOOM,
     skins,
 } from "../../constants/constants.ts";
 
@@ -32,6 +33,7 @@ import type {RestaurantFeature, RestaurantResponse} from "../../types/restaurant
 import type {Position} from "../../types/position.type.ts";
 import type {AxiosResponse} from "axios";
 import {searchNearbyRestaurants} from "../../api/search-nearby-restaurants.ts";
+import SearchLocationForm from "../SearchLocationForm/SearchLocationForm.tsx";
 
 // Eine reine Verhaltenskomponente (return null)
 function SyncPreview({previewRef}: {
@@ -97,6 +99,10 @@ export default function MapView() {
         setMainSkin(prev => prev === 0 ? 1 : 0)
     }
 
+    function flyToLocation(latLng: LatLngTuple) {
+        mapRef.current?.flyTo(latLng, SEARCH_ZOOM)
+    }
+
     async function handleFindRestaurants() {
         const map = mapRef.current;
         if (!map) {
@@ -128,6 +134,7 @@ export default function MapView() {
 
     return (
         <div className={"map-wrapper"}>
+            <SearchLocationForm onSubmit={flyToLocation}/>
             <div className="map-button-group">
                 <button
                     onClick={goToMyLocation}
