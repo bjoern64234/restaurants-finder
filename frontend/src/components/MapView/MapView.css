@@ -83,8 +83,8 @@
 
 .map-button-group {
     position: absolute;
-    bottom: 15px;
-    right: 15px;
+    bottom: 100px;
+    right: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;

@@ -6,6 +6,7 @@ import {
     MapContainer,
     TileLayer,
     useMapEvents,
+    ZoomControl,
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
@@ -155,8 +156,9 @@ export default function MapView() {
             {errorMessage && <p className={"error-message"} role={"alert"}>{errorMessage}</p>}
 
             <MapContainer id={"map"} ref={mapRef} center={INITIAL_CENTER} zoom={INITIAL_ZOOM}
-                          attributionControl={false}>
+                          attributionControl={false} zoomControl={false}>
                 <AttributionControl prefix={"ⓘ"}/>
+                <ZoomControl position={"bottomright"}/>
                 <SyncPreview previewRef={previewMapRef}/>
 
                 <TileLayer
