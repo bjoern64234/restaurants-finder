@@ -38,6 +38,7 @@ public class Restaurant {
 
     private Double lng;
 
+    @Column(unique = true)
     private String placeId;
 
     @LastModifiedDate

@@ -33,6 +33,7 @@ import type {RestaurantFeature, RestaurantResponse} from "../../types/restaurant
 import type {Position} from "../../types/position.type.ts";
 import type {AxiosResponse} from "axios";
 import {searchNearbyRestaurants} from "../../api/search-nearby-restaurants.ts";
+import {getFavoriteRestaurants} from "../../api/get-favorites.ts";
 import SearchLocationForm from "../SearchLocationForm/SearchLocationForm.tsx";
 
 // Eine reine Verhaltenskomponente (return null)
@@ -63,6 +64,7 @@ export default function MapView() {
         lng: INITIAL_CENTER[1],
     });
     const [restaurants, setRestaurants] = useState<RestaurantFeature[]>([]);
+    const [favoriteIdsByPlaceId, setFavoriteIdsByPlaceId] = useState<Map<string, number>>(new Map());
     const previewMapRef = useRef<LeafletMap | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     // Fehlermeldung nach 5s automatisch ausblenden; Timer wird bei neuer Meldung/Unmount aufgeräumt
@@ -74,6 +76,12 @@ export default function MapView() {
 
     useEffect(() => {
         goToMyLocation();
+    }, []);
+
+    useEffect(() => {
+        getFavoriteRestaurants()
+            .then(res => setFavoriteIdsByPlaceId(new Map(res.data.map(favorite => [favorite.placeId, favorite.id]))))
+            .catch(error => console.error("Favoriten konnten nicht geladen werden", error));
     }, []);
 
 
@@ -93,6 +101,18 @@ export default function MapView() {
                 );
             }
         );
+    }
+
+    function handleFavorited(placeId: string, id: number) {
+        setFavoriteIdsByPlaceId(prev => new Map(prev).set(placeId, id));
+    }
+
+    function handleUnfavorited(placeId: string) {
+        setFavoriteIdsByPlaceId(prev => {
+            const next = new Map(prev);
+            next.delete(placeId);
+            return next;
+        });
     }
 
     function toggleSkin() {
@@ -173,6 +193,9 @@ export default function MapView() {
                         <RestaurantMarker
                             key={restaurant.properties.place_id}
                             restaurant={restaurant}
+                            favoriteId={favoriteIdsByPlaceId.get(restaurant.properties.place_id) ?? null}
+                            onFavorited={handleFavorited}
+                            onUnfavorited={handleUnfavorited}
                         />
                     ))}
                 </MarkerClusterGroup> : null}
