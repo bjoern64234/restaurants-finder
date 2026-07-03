@@ -48,6 +48,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ErrorMessage(messages, HttpStatus.BAD_REQUEST.value(), LocalDateTime.now());
     }
 
+    @ExceptionHandler(DuplicateUserException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorMessage handleDuplicateUserException(DuplicateUserException ex) {
+        return new ErrorMessage(ex.getMessage(), HttpStatus.CONFLICT.value(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler({InvalidCredentialsException.class, InvalidSessionTokenException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorMessage handleAuthenticationException(RuntimeException ex) {
+        return new ErrorMessage(ex.getMessage(), HttpStatus.UNAUTHORIZED.value(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleException() {

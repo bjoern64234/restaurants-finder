@@ -1,7 +1,15 @@
 package org.example.backend.controllers;
 
+import jakarta.validation.Valid;
+import org.example.backend.dtos.auth.AuthResponse;
+import org.example.backend.dtos.auth.LoginRequest;
+import org.example.backend.dtos.auth.RegisterRequest;
 import org.example.backend.entities.User;
+import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.repos.UserRepository;
+import org.example.backend.services.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,17 +19,42 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository repo;
+    private final UserService userService;
 
-    public UserController(UserRepository repo) {
+    public UserController(UserRepository repo, UserService userService) {
         this.repo = repo;
+        this.userService = userService;
     }
 
-    // CREATE
-    @PostMapping
-    public User create(@RequestBody User user) {
-        return repo.save(user);
+    // REGISTER
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) {
+        User user = userService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
+    // LOGIN
+    @PostMapping("/login")
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        String sessionToken = userService.login(request);
+        return new AuthResponse(sessionToken);
+    }
+
+    // LOGOUT
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authorization) {
+        userService.logout(extractSessionToken(authorization));
+        return ResponseEntity.noContent().build();
+    }
+
+    private String extractSessionToken(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new InvalidSessionTokenException("Missing or malformed Authorization header");
+        }
+        return authorization.substring("Bearer ".length());
+    }
+
+    // FOR DEBUG
     // READ ALL
     @GetMapping
     public List<User> getAll() {
