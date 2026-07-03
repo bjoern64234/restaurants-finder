@@ -1,8 +1,8 @@
 ### Get all restaurants
-GET {{localhost}}:{{port}}/restaurants
+GET {{localhost}}:{{port}}/api/restaurants
 
 ### Create a favorite restaurant
-POST {{localhost}}:{{port}}/restaurants
+POST {{localhost}}:{{port}}/api/restaurants
 Content-Type: application/json
 
 {
@@ -22,7 +22,7 @@ Content-Type: application/json
 %}
 
 ### Get restaurant by id
-GET {{localhost}}:{{port}}/restaurants/{{id}}
+GET {{localhost}}:{{port}}/api/restaurants/{{id}}
 
 ### Delete restaurant by id
-DELETE {{localhost}}:{{port}}/restaurants/{{id}}
+DELETE {{localhost}}:{{port}}/api/restaurants/{{id}}

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/restaurants")
+@RequestMapping("/api")
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
@@ -18,22 +18,22 @@ public class RestaurantController {
         this.restaurantService = restaurantService;
     }
 
-    @GetMapping
+    @GetMapping("/restaurants")
     public List<Restaurant> getRestaurants() {
         return this.restaurantService.findAllRestaurants();
     }
 
-    @PostMapping
+    @PostMapping("/restaurants")
     public Restaurant create(@RequestBody RestaurantDTO restaurantDTO) {
         return this.restaurantService.saveRestaurant(restaurantDTO);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/restaurants/{id}")
     public Restaurant getRestaurant(@PathVariable Long id) {
         return this.restaurantService.findRestaurantById(id);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/restaurants/{id}")
     public ResponseEntity<Void> deleteRestaurant(@PathVariable Long id) {
         return this.restaurantService.deleteRestaurant(id);
     }

@@ -54,7 +54,7 @@ class RestaurantControllerTest {
         when(restaurantService.findAllRestaurants()).thenReturn(restaurants);
 
         // When & Than
-        mockMvc.perform(get("/restaurants"))
+        mockMvc.perform(get("/api/restaurants"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].name").value("Pizza Place"))
@@ -69,7 +69,7 @@ class RestaurantControllerTest {
         when(restaurantService.findAllRestaurants()).thenReturn(List.of());
 
         // When & Than
-        mockMvc.perform(get("/restaurants"))
+        mockMvc.perform(get("/api/restaurants"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
 
@@ -97,7 +97,7 @@ class RestaurantControllerTest {
         when(restaurantService.saveRestaurant(any(RestaurantDTO.class))).thenReturn(savedRestaurant);
 
         // When & Than
-        mockMvc.perform(post("/restaurants")
+        mockMvc.perform(post("/api/restaurants")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -117,7 +117,7 @@ class RestaurantControllerTest {
         when(restaurantService.findRestaurantById(id)).thenReturn(restaurant);
 
         // When & Than
-        mockMvc.perform(get("/restaurants/{id}", id))
+        mockMvc.perform(get("/api/restaurants/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Pizza Place"));
 
@@ -131,7 +131,7 @@ class RestaurantControllerTest {
         when(restaurantService.findRestaurantById(id)).thenThrow(new RestaurantNotFoundException(id));
 
         // When & Than
-        mockMvc.perform(get("/restaurants/{id}", id))
+        mockMvc.perform(get("/api/restaurants/{id}", id))
                 .andExpect(status().isNotFound());
 
         verify(restaurantService, times(1)).findRestaurantById(id);
@@ -144,7 +144,7 @@ class RestaurantControllerTest {
         when(restaurantService.deleteRestaurant(id)).thenReturn(ResponseEntity.ok().build());
 
         // When & Than
-        mockMvc.perform(delete("/restaurants/{id}", id))
+        mockMvc.perform(delete("/api/restaurants/{id}", id))
                 .andExpect(status().isOk());
 
         verify(restaurantService, times(1)).deleteRestaurant(id);
