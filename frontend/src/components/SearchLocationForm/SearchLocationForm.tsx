@@ -59,6 +59,9 @@ export default function SearchLocationForm({onSubmit}: Readonly<Props>) {
         setQuery(suggestion.formatted);
         setSuggestions([]);
         setActiveIndex(-1);
+        // Fokus zurück ins Input – nach Tastatur-Auswahl lag er auf dem (nun
+        // entfernten) Button. So kann direkt mit Enter abgeschickt werden.
+        inputRef.current?.focus();
     }
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -124,11 +127,11 @@ export default function SearchLocationForm({onSubmit}: Readonly<Props>) {
                             <button
                                 type="button"
                                 className={index === activeIndex ? "active" : undefined}
-                                // preventDefault: Fokus bleibt im Input, damit danach Enter greift
-                                onMouseDown={(event) => {
-                                    event.preventDefault();
-                                    selectSuggestion(suggestion);
-                                }}
+                                // Maus: preventDefault verhindert den Fokus-Wechsel weg vom Input.
+                                // Die Selektion läuft über onClick – der feuert bei Maus-Klick
+                                // UND bei Enter/Space, wenn per TAB auf den Button fokussiert wurde.
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() => selectSuggestion(suggestion)}
                             >
                                 {suggestion.formatted}
                             </button>
