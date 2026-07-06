@@ -10,13 +10,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor //JPA required this
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
 @Table(name = "restaurants")
 public class Restaurant {
 
@@ -24,28 +25,9 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
-    private String formatted;
-
-    private String website;
-
-    private String openingHours;
-
-    private String cuisine;
-
-    private String phone;
-
-    private Double lat;
-
-    private Double lng;
-
     @Column(unique = true)
     private String placeId;
 
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
+    @ManyToMany(mappedBy = "restaurants")
+    private Set<User> users = new HashSet<>();
 }

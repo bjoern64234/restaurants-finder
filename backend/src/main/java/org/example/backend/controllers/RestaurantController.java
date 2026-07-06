@@ -28,13 +28,13 @@ public class RestaurantController {
         return this.restaurantService.saveRestaurant(restaurantDTO);
     }
 
-    @GetMapping("/restaurants/{id}")
-    public Restaurant getRestaurant(@PathVariable Long id) {
-        return this.restaurantService.findRestaurantById(id);
+    @GetMapping("/restaurants/{placeId}")
+    public Restaurant getRestaurant(@PathVariable String placeId) {
+        return this.restaurantService.findRestaurantByPlaceId(placeId);
     }
 
-    @DeleteMapping("/restaurants/{id}")
-    public ResponseEntity<Void> deleteRestaurant(@PathVariable Long id) {
-        return this.restaurantService.deleteRestaurant(id);
+    @DeleteMapping("/restaurants/{placeId}")
+    public ResponseEntity<Restaurant> deleteRestaurant(@PathVariable String placeId) {
+        return this.restaurantService.deleteRestaurantByPlaceId(placeId);
     }
 }

@@ -29,12 +29,12 @@ public class RestaurantService {
         return this.restaurantRepository.save(this.restaurantMapper.toEntity(restaurantDTO));
     }
 
-    public Restaurant findRestaurantById(long id) {
-        return this.restaurantRepository.findById(id).orElseThrow(() -> new RestaurantNotFoundException(id));
+    public Restaurant findRestaurantByPlaceId(String placeId) {
+        return this.restaurantRepository.findRestaurantByPlaceId(placeId).orElseThrow(() -> new RestaurantNotFoundException(placeId));
     }
 
-    public ResponseEntity<Void> deleteRestaurant(long id) {
-        this.restaurantRepository.deleteById(id);
+    public ResponseEntity<Restaurant> deleteRestaurantByPlaceId(String placeId) {
+        this.restaurantRepository.deleteRestaurantByPlaceId(placeId);
 
         return ResponseEntity.ok().build();
     }

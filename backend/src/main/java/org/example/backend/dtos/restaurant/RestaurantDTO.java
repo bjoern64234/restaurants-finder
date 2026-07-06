@@ -8,14 +8,6 @@ import lombok.With;
 @With
 @Builder
 public record RestaurantDTO(
-    @NotBlank(message = "Name can not be blank") String name,
-    String formatted,
-    String website,
-    String openingHours,
-    String phone,
-    String cuisine,
-    @NotNull(message = "Lat can not be null") Double lat,
-    @NotNull(message = "Lng can not be null")  Double lng,
     @NotBlank(message = "PlaceId can not be blank") String placeId
 ) {
 }
