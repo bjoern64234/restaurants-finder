@@ -55,11 +55,18 @@ export function AccountDialog({open, onClose}: Readonly<Props>): ReactElement {
         }
     }
 
+    const handleDialogKeyDown = (e) => {
+        if (e.key === "Escape") {
+            onClose();
+        }
+    };
+
     return (
         <dialog
             ref={dialogRef}
             className="account-dialog"
             onClick={handleDialogClick}
+            onKeyDown={handleDialogKeyDown}
             onClose={onClose}
         >
             <div className="account-dialog__content">
