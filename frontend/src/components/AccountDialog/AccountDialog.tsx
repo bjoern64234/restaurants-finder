@@ -6,11 +6,14 @@ import {useAuth} from "../../states/AuthContext";
 import {extractErrorMessage} from "../../utils/extractErrorMessage";
 import type {AuthUser} from "../../types/auth.type";
 import {logout as logoutUser} from "../../api/auth.ts";
+import {FavoritesTab} from "./FavoritesTab";
 
 type Props = {
     open: boolean;
     onClose: () => void;
 };
+
+type TabKey = "account" | "favorites";
 
 export function AccountDialog({open, onClose}: Readonly<Props>): ReactElement {
     const dialogRef = useRef<HTMLDialogElement>(null);
@@ -18,6 +21,7 @@ export function AccountDialog({open, onClose}: Readonly<Props>): ReactElement {
     const [user, setUser] = useState<AuthUser | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<TabKey>("account");
 
     useEffect(() => {
         const dialog = dialogRef.current;
@@ -27,6 +31,10 @@ export function AccountDialog({open, onClose}: Readonly<Props>): ReactElement {
         } else if (!open && dialog.open) {
             dialog.close();
         }
+    }, [open]);
+
+    useEffect(() => {
+        if (open) setActiveTab("account");
     }, [open]);
 
     useEffect(() => {
@@ -77,19 +85,46 @@ export function AccountDialog({open, onClose}: Readonly<Props>): ReactElement {
                     </button>
                 </div>
 
-                {loading && <p>Lade...</p>}
-                {error && <p className="account-dialog__error" role="alert">{error}</p>}
+                <div className="account-dialog__tabs" role="tablist">
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={activeTab === "account"}
+                        className={`account-dialog__tab ${activeTab === "account" ? "account-dialog__tab--active" : ""}`}
+                        onClick={() => setActiveTab("account")}
+                    >
+                        Über mich
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={activeTab === "favorites"}
+                        className={`account-dialog__tab ${activeTab === "favorites" ? "account-dialog__tab--active" : ""}`}
+                        onClick={() => setActiveTab("favorites")}
+                    >
+                        Favoriten
+                    </button>
+                </div>
 
-                {user && !loading && !error && (
-                    <dl className="account-dialog__details">
-                        <dt>Name</dt>
-                        <dd>{user.name}</dd>
-                        <dt>Benutzername</dt>
-                        <dd>{user.username}</dd>
-                        <dt>E-Mail</dt>
-                        <dd>{user.email}</dd>
-                    </dl>
+                {activeTab === "account" && (
+                    <>
+                        {loading && <p>Lade...</p>}
+                        {error && <p className="account-dialog__error" role="alert">{error}</p>}
+
+                        {user && !loading && !error && (
+                            <dl className="account-dialog__details">
+                                <dt>Name</dt>
+                                <dd>{user.name}</dd>
+                                <dt>Benutzername</dt>
+                                <dd>{user.username}</dd>
+                                <dt>E-Mail</dt>
+                                <dd>{user.email}</dd>
+                            </dl>
+                        )}
+                    </>
                 )}
+
+                {activeTab === "favorites" && <FavoritesTab/>}
 
                 <button type="button" className="account-dialog__logout" onClick={handleLogout}>
                     Abmelden
