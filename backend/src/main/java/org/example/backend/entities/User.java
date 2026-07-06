@@ -47,11 +47,11 @@ public class User {
 
     @ManyToMany
     @JoinTable(
-            name = "favorites",
+            name = "users_restaurants",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "place_id")
     )
-    private Set<Restaurant> restaurants = new HashSet<>();
+    private Set<Restaurant> favorite_restaurants = new HashSet<>();
 }
 
 

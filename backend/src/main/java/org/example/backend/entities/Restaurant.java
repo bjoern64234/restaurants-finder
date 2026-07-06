@@ -28,6 +28,6 @@ public class Restaurant {
     @Column(unique = true)
     private String placeId;
 
-    @ManyToMany(mappedBy = "restaurants")
+    @ManyToMany(mappedBy = "favorite_restaurants")
     private Set<User> users = new HashSet<>();
 }

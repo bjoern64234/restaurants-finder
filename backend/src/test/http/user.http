@@ -1,2 +1,2 @@
 ### Get users
-GET {{localhost}}:{{port}}/users
+GET {{localhost}}:{{port}}/api
