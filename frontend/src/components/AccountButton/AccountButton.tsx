@@ -3,6 +3,7 @@ import type {ReactElement} from "react";
 import {AuthDialog} from "../AuthDialog/AuthDialog";
 import {AccountDialog} from "../AccountDialog/AccountDialog";
 import account from "../../assets/account.png"
+import accountAuthenticated from "../../assets/account-authenticated.png"
 import {useAuth} from "../../states/AuthContext.tsx"
 
 export function AccountButton(): ReactElement {
@@ -14,10 +15,14 @@ export function AccountButton(): ReactElement {
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="map-button"
+                className={`${isAuthenticated ? "colored" : ""} map-button`}
                 aria-label="Konto öffnen"
             >
-                <img src={account} alt={"Account"}/>
+                {
+                    isAuthenticated ?
+                        <img src={accountAuthenticated} alt={"Account"}/>
+                        : <img src={account} alt={"Account"}/>
+                }
             </button>
             {isAuthenticated
                 ? <AccountDialog open={open} onClose={() => setOpen(false)}/>

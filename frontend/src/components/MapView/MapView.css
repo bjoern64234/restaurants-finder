@@ -67,6 +67,8 @@
     position: relative;
     z-index: 1000;
 
+    border: 2px solid transparent;
+
     & img {
         width: 16px;
         height: 16px;
@@ -79,6 +81,10 @@
     &:active {
         transform: scale(0.95);
     }
+}
+
+.colored {
+    border: 2px solid var(--accent);
 }
 
 .map-button-group {
