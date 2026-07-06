@@ -31,9 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         Map<String, String> validationErrors = new HashMap<>();
 
-        ex.getBindingResult().getFieldErrors().forEach((fieldError) -> {
-            validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
-        });
+        ex.getBindingResult().getFieldErrors().forEach((fieldError) -> validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage()));
 
         return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
     }
@@ -46,6 +44,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining(", "));
         return new ErrorMessage(messages, HttpStatus.BAD_REQUEST.value(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(DuplicateUserException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorMessage handleDuplicateUserException(DuplicateUserException ex) {
+        return new ErrorMessage(ex.getMessage(), HttpStatus.CONFLICT.value(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler({InvalidCredentialsException.class, InvalidSessionTokenException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorMessage handleAuthenticationException(RuntimeException ex) {
+        return new ErrorMessage(ex.getMessage(), HttpStatus.UNAUTHORIZED.value(), LocalDateTime.now());
     }
 
     @ExceptionHandler(Exception.class)

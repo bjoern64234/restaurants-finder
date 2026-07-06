@@ -6,6 +6,7 @@ import {
     MapContainer,
     TileLayer,
     useMapEvents,
+    ZoomControl,
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
@@ -20,6 +21,7 @@ import MyLocation from "../../assets/my-location.png";
 import {MyLocationMarker} from "../MyLocationMarker/MyLocationMarker.tsx";
 import {RestaurantMarker} from "../RestaurantMarker/RestaurantMarker.tsx";
 import {SearchRestaurantsButton} from "../SearchRestaurantsButton/SearchRestaurantsButton.tsx";
+import {AccountButton} from "../AccountButton/AccountButton.tsx";
 
 import {
     COMBINED_ATTRIBUTION,
@@ -134,7 +136,10 @@ export default function MapView() {
 
     return (
         <div className={"map-wrapper"}>
-            <SearchLocationForm onSubmit={flyToLocation}/>
+            <div className="top-bar">
+                <SearchLocationForm onSubmit={flyToLocation}/>
+                <AccountButton/>
+            </div>
             <div className="map-button-group">
                 <button
                     onClick={goToMyLocation}
@@ -151,8 +156,9 @@ export default function MapView() {
             {errorMessage && <p className={"error-message"} role={"alert"}>{errorMessage}</p>}
 
             <MapContainer id={"map"} ref={mapRef} center={INITIAL_CENTER} zoom={INITIAL_ZOOM}
-                          attributionControl={false}>
+                          attributionControl={false} zoomControl={false}>
                 <AttributionControl prefix={"ⓘ"}/>
+                <ZoomControl position={"bottomright"}/>
                 <SyncPreview previewRef={previewMapRef}/>
 
                 <TileLayer
