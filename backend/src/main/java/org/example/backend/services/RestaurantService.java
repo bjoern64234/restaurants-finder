@@ -2,8 +2,10 @@ package org.example.backend.services;
 
 import org.example.backend.dtos.restaurant.RestaurantDTO;
 import org.example.backend.entities.Restaurant;
+import org.example.backend.entities.User;
 import org.example.backend.exceptions.restaurant.RestaurantNotFoundException;
 import org.example.backend.repos.RestaurantRepository;
+import org.example.backend.repos.UserRepository;
 import org.example.backend.utils.RestaurantMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,18 +17,26 @@ public class RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
     private final RestaurantMapper restaurantMapper;
+    private final UserRepository userRepository;
 
-    public RestaurantService(RestaurantRepository restaurantRepository, RestaurantMapper restaurantMapper) {
+    public RestaurantService(RestaurantRepository restaurantRepository, RestaurantMapper restaurantMapper, UserRepository userRepository) {
         this.restaurantRepository = restaurantRepository;
         this.restaurantMapper = restaurantMapper;
+        this.userRepository = userRepository;
     }
 
     public List<Restaurant> findAllRestaurants() {
         return this.restaurantRepository.findAll();
     }
 
-    public Restaurant saveRestaurant(RestaurantDTO restaurantDTO) {
-        return this.restaurantRepository.save(this.restaurantMapper.toEntity(restaurantDTO));
+    public Restaurant saveRestaurant(RestaurantDTO restaurantDTO, User user) {
+        Restaurant restaurant = this.restaurantRepository.findRestaurantByPlaceId(restaurantDTO.placeId())
+                .orElseGet(() -> this.restaurantRepository.save(this.restaurantMapper.toEntity(restaurantDTO)));
+
+        user.getFavorite_restaurants().add(restaurant);
+        this.userRepository.save(user);
+
+        return restaurant;
     }
 
     public Restaurant findRestaurantByPlaceId(String placeId) {
