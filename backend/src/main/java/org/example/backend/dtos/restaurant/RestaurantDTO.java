@@ -12,6 +12,7 @@ public record RestaurantDTO(
     String formatted,
     String website,
     String openingHours,
+    String phone,
     String cuisine,
     @NotNull(message = "Lat can not be null") Double lat,
     @NotNull(message = "Lng can not be null")  Double lng,

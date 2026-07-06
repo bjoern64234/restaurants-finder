@@ -34,6 +34,8 @@ public class Restaurant {
 
     private String cuisine;
 
+    private String phone;
+
     private Double lat;
 
     private Double lng;

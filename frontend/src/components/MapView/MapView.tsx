@@ -33,7 +33,7 @@ import type {RestaurantFeature, RestaurantResponse} from "../../types/restaurant
 import type {Position} from "../../types/position.type.ts";
 import type {AxiosResponse} from "axios";
 import {searchNearbyRestaurants} from "../../api/search-nearby-restaurants.ts";
-import {getFavoriteRestaurants} from "../../api/get-favorites.ts";
+import {getFavoriteRestaurants} from "../../api/favorites.ts";
 import SearchLocationForm from "../SearchLocationForm/SearchLocationForm.tsx";
 
 // Eine reine Verhaltenskomponente (return null)

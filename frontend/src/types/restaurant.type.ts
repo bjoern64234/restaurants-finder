@@ -36,6 +36,7 @@ export interface SaveFavoriteRestaurantParams {
     formatted: string;
     website: string | null;
     openingHours: string | null;
+    phone: string | null;
     cuisine: string | null;
     lat: number;
     lng: number;

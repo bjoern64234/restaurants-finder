@@ -14,6 +14,7 @@ public class RestaurantMapper {
         restaurant.setFormatted(restaurantDTO.formatted());
         restaurant.setWebsite(restaurantDTO.website());
         restaurant.setOpeningHours(restaurantDTO.openingHours());
+        restaurant.setPhone(restaurantDTO.phone());
         restaurant.setCuisine(restaurantDTO.cuisine());
         restaurant.setLat(restaurantDTO.lat());
         restaurant.setLng(restaurantDTO.lng());

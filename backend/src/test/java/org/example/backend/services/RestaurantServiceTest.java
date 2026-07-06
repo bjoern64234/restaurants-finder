@@ -77,6 +77,7 @@ class RestaurantServiceTest {
                 "123 Main St, City",
                 "https://pizzaplace.com",
                 "Mo-Su 10:00-22:00",
+                "123456789",
                 "Italian",
                 52.5200,
                 13.4050,
@@ -88,6 +89,7 @@ class RestaurantServiceTest {
         mappedRestaurant.setFormatted(dto.formatted());
         mappedRestaurant.setWebsite(dto.website());
         mappedRestaurant.setOpeningHours(dto.openingHours());
+        mappedRestaurant.setPhone(dto.phone());
         mappedRestaurant.setCuisine(dto.cuisine());
         mappedRestaurant.setLat(dto.lat());
         mappedRestaurant.setLng(dto.lng());

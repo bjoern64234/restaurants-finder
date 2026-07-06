@@ -84,6 +84,7 @@ class RestaurantControllerTest {
                 "123 Main St, City",
                 "https://pizzaplace.com",
                 "Mo-Su 10:00-22:00",
+                "123456789",
                 "Italian",
                 52.5200,
                 13.4050,

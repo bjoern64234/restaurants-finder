@@ -10,6 +10,7 @@ Content-Type: application/json
   "formatted": "Restaurant Naxos, Ulzburger Straße 279, 22850 Norderstedt, Germany",
   "website":"https://www.restaurant-naxos.de/",
   "openingHours": "Mo-Fr 11:30-14:30,17:00-23:00; Sa-Su 11:30-23:00",
+  "phone": "+49 174 123 4569",
   "cuisine":"greek",
   "lat": 53.7055712,
   "lng": 9.9959691,
