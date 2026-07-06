@@ -76,7 +76,7 @@ export function AuthDialog({open, onClose}: Readonly<Props>): ReactElement {
         if (event.target === dialogRef.current) onClose();
     }
 
-    const handleDialogKeyDown = (e) => {
+    const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (e.key === "Escape") {
             onClose();
         }
