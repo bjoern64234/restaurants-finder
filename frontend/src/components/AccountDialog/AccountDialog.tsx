@@ -55,7 +55,7 @@ export function AccountDialog({open, onClose}: Readonly<Props>): ReactElement {
         }
     }
 
-    const handleDialogKeyDown = (e) => {
+    const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
         if (e.key === "Escape") {
             onClose();
         }
