@@ -1,7 +1,6 @@
 import "./LikeButton.css"
 import {useEffect, useState} from "react";
-import {saveFavoriteRestaurant} from "../../api/save-favorite";
-import {deleteFavoriteRestaurant} from "../../api/delete-favorite";
+import {deleteFavoriteRestaurant, saveFavoriteRestaurant} from "../../api/favorites";
 import type {RestaurantProperties} from "../../types/restaurant.type";
 
 interface LikeButtonProps {
@@ -15,6 +14,7 @@ export function LikeButton({restaurant, favoriteId, onFavorited, onUnfavorited}:
   const [liked, setLiked] = useState(favoriteId !== null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLiked(favoriteId !== null);
   }, [favoriteId]);
 
@@ -39,6 +39,7 @@ export function LikeButton({restaurant, favoriteId, onFavorited, onUnfavorited}:
         website: restaurant.website,
         openingHours: restaurant.opening_hours,
         cuisine: restaurant.catering?.cuisine ?? null,
+        phone: restaurant.contact?.phone ?? null,
         lat: restaurant.lat,
         lng: restaurant.lon,
         placeId: restaurant.place_id,
