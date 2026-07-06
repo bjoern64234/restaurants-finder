@@ -1,4 +1,4 @@
-import {api} from "./axios";
+import {publicApi} from "./publicApi.ts";
 import type {AxiosResponse} from "axios";
 import type {AutocompleteResult} from "../types/autocomplete.type";
 
@@ -6,7 +6,7 @@ export const autocompleteLocations = (
     query: string,
     signal?: AbortSignal
 ): Promise<AxiosResponse<AutocompleteResult>> => {
-    return api.get("/autocomplete", {
+    return publicApi.get("/autocomplete", {
         params: {query},
         signal,
     });
