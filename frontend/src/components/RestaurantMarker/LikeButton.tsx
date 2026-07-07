@@ -23,7 +23,7 @@ export function LikeButton({restaurant, favoriteId, onFavorited, onUnfavorited}:
       if (favoriteId === null) return;
 
       try {
-        await deleteFavoriteRestaurant(favoriteId);
+        await deleteFavoriteRestaurant(restaurant.place_id);
         setLiked(false);
         onUnfavorited(restaurant.place_id);
       } catch (error) {

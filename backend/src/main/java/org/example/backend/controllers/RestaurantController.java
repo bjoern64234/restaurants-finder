@@ -41,8 +41,9 @@ public class RestaurantController {
     }
 
     @DeleteMapping("/restaurants/{placeId}")
-    public ResponseEntity<Restaurant> deleteRestaurant(@PathVariable String placeId) {
-        return this.restaurantService.deleteRestaurantByPlaceId(placeId);
+    public ResponseEntity<Restaurant> deleteRestaurant(@PathVariable String placeId, @RequestHeader("Authorization") String authorization) {
+        User user = sessionService.getUserBySessionToken(extractSessionToken(authorization));
+        return this.restaurantService.removeFavoriteRestaurant(placeId, user);
     }
 
     private String extractSessionToken(String authorization) {

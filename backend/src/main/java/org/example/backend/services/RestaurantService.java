@@ -9,6 +9,7 @@ import org.example.backend.repos.UserRepository;
 import org.example.backend.utils.RestaurantMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public class RestaurantService {
         return new ArrayList<>(user.getFavorite_restaurants());
     }
 
+    @Transactional
     public Restaurant saveRestaurant(RestaurantDTO restaurantDTO, User user) {
         Restaurant restaurant = this.restaurantRepository.findRestaurantByPlaceId(restaurantDTO.placeId())
                 .orElseThrow(() -> new RestaurantNotFoundException(restaurantDTO.placeId()));
@@ -48,8 +50,13 @@ public class RestaurantService {
         return this.restaurantRepository.findRestaurantByPlaceId(placeId).orElseThrow(() -> new RestaurantNotFoundException(placeId));
     }
 
-    public ResponseEntity<Restaurant> deleteRestaurantByPlaceId(String placeId) {
-        this.restaurantRepository.deleteRestaurantByPlaceId(placeId);
+    @Transactional
+    public ResponseEntity<Restaurant> removeFavoriteRestaurant(String placeId, User user) {
+        Restaurant restaurant = this.restaurantRepository.findRestaurantByPlaceId(placeId)
+                .orElseThrow(() -> new RestaurantNotFoundException(placeId));
+
+        user.getFavorite_restaurants().remove(restaurant);
+        this.userRepository.save(user);
 
         return ResponseEntity.ok().build();
     }

@@ -140,13 +140,29 @@ class RestaurantServiceTest {
                 .isInstanceOf(RestaurantNotFoundException.class);
     }
 
-    // --- deleteRestaurantByPlaceId ---
+    // --- removeFavoriteRestaurant ---
 
     @Test
-    void deleteRestaurantByPlaceId_deletesRestaurant_andReturnsOk() {
-        ResponseEntity<Restaurant> result = restaurantService.deleteRestaurantByPlaceId("place-123");
+    void removeFavoriteRestaurant_removesRestaurantFromFavorites_andReturnsOk() {
+        user.getFavorite_restaurants().add(restaurant);
+        when(restaurantRepository.findRestaurantByPlaceId("place-123"))
+                .thenReturn(Optional.of(restaurant));
+
+        ResponseEntity<Restaurant> result = restaurantService.removeFavoriteRestaurant("place-123", user);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-        verify(restaurantRepository, times(1)).deleteRestaurantByPlaceId("place-123");
+        assertThat(user.getFavorite_restaurants()).doesNotContain(restaurant);
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void removeFavoriteRestaurant_throwsException_whenRestaurantNotFound() {
+        when(restaurantRepository.findRestaurantByPlaceId("unknown"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> restaurantService.removeFavoriteRestaurant("unknown", user))
+                .isInstanceOf(RestaurantNotFoundException.class);
+
+        verify(userRepository, never()).save(any());
     }
 }

@@ -155,25 +155,38 @@ class RestaurantControllerTest {
     // --- DELETE /api/restaurants/{placeId} ---
 
     @Test
-    void deleteRestaurant_returnsOk_whenDeleted() throws Exception {
-        when(restaurantService.deleteRestaurantByPlaceId("place-123"))
+    void deleteRestaurant_returnsOk_whenRemoved() throws Exception {
+        User user = new User();
+        when(sessionService.getUserBySessionToken("valid-token")).thenReturn(user);
+        when(restaurantService.removeFavoriteRestaurant("place-123", user))
                 .thenReturn(ResponseEntity.ok(restaurant));
 
-        mockMvc.perform(delete("/api/restaurants/place-123"))
+        mockMvc.perform(delete("/api/restaurants/place-123").header("Authorization", "Bearer valid-token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.placeId").value("place-123"));
 
-        verify(restaurantService).deleteRestaurantByPlaceId("place-123");
+        verify(sessionService).getUserBySessionToken("valid-token");
+        verify(restaurantService).removeFavoriteRestaurant("place-123", user);
     }
 
     @Test
     void deleteRestaurant_returnsNotFound_whenRestaurantDoesNotExist() throws Exception {
-        when(restaurantService.deleteRestaurantByPlaceId("unknown"))
+        User user = new User();
+        when(sessionService.getUserBySessionToken("valid-token")).thenReturn(user);
+        when(restaurantService.removeFavoriteRestaurant("unknown", user))
                 .thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 
-        mockMvc.perform(delete("/api/restaurants/unknown"))
+        mockMvc.perform(delete("/api/restaurants/unknown").header("Authorization", "Bearer valid-token"))
                 .andExpect(status().isNotFound());
 
-        verify(restaurantService).deleteRestaurantByPlaceId("unknown");
+        verify(restaurantService).removeFavoriteRestaurant("unknown", user);
+    }
+
+    @Test
+    void deleteRestaurant_throwsException_whenAuthorizationHeaderMissing() throws Exception {
+        mockMvc.perform(delete("/api/restaurants/place-123"));
+
+        verifyNoInteractions(sessionService);
+        verifyNoInteractions(restaurantService);
     }
 }
