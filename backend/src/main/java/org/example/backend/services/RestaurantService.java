@@ -10,6 +10,7 @@ import org.example.backend.utils.RestaurantMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,6 +28,10 @@ public class RestaurantService {
 
     public List<Restaurant> findAllRestaurants() {
         return this.restaurantRepository.findAll();
+    }
+
+    public List<Restaurant> findFavoriteRestaurantsForUser(User user) {
+        return new ArrayList<>(user.getFavorite_restaurants());
     }
 
     public Restaurant saveRestaurant(RestaurantDTO restaurantDTO, User user) {

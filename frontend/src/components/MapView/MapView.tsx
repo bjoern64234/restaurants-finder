@@ -37,6 +37,7 @@ import type {AxiosResponse} from "axios";
 import {searchNearbyRestaurants} from "../../api/search-nearby-restaurants.ts";
 import {getFavoriteRestaurants} from "../../api/favorites.ts";
 import SearchLocationForm from "../SearchLocationForm/SearchLocationForm.tsx";
+import {useAuth} from "../../states/AuthContext.tsx";
 
 // Eine reine Verhaltenskomponente (return null)
 function SyncPreview({previewRef}: {
@@ -58,6 +59,7 @@ const createClusterIcon = (cluster: MarkerCluster) =>
 
 
 export default function MapView() {
+    const {isAuthenticated} = useAuth();
     const [mainSkin, setMainSkin] = useState<0 | 1>(0);
     const secondSkin = mainSkin === 0 ? 1 : 0;
     const mapRef = useRef<LeafletMap | null>(null);
@@ -81,10 +83,11 @@ export default function MapView() {
     }, []);
 
     useEffect(() => {
+        if (!isAuthenticated) return;
         getFavoriteRestaurants()
             .then(res => setFavoriteIdsByPlaceId(new Map(res.data.map(favorite => [favorite.placeId, favorite.id]))))
             .catch(error => console.error("Favoriten konnten nicht geladen werden", error));
-    }, []);
+    }, [isAuthenticated]);
 
 
     function goToMyLocation() {

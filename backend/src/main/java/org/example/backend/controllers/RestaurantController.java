@@ -24,8 +24,9 @@ public class RestaurantController {
     }
 
     @GetMapping("/restaurants")
-    public List<Restaurant> getRestaurants() {
-        return this.restaurantService.findAllRestaurants();
+    public List<Restaurant> getRestaurants(@RequestHeader("Authorization") String authorization) {
+        User user = sessionService.getUserBySessionToken(extractSessionToken(authorization));
+        return this.restaurantService.findFavoriteRestaurantsForUser(user);
     }
 
     @PostMapping("/restaurants")

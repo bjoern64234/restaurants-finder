@@ -11,6 +11,14 @@ public class RestaurantMapper {
         Restaurant restaurant = new Restaurant();
 
         restaurant.setPlaceId(restaurantDTO.placeId());
+        restaurant.setName(restaurantDTO.name());
+        restaurant.setFormatted(restaurantDTO.formatted());
+        restaurant.setWebsite(restaurantDTO.website());
+        restaurant.setOpeningHours(restaurantDTO.openingHours());
+        restaurant.setPhone(restaurantDTO.phone());
+        restaurant.setCuisine(restaurantDTO.cuisine());
+        restaurant.setLat(restaurantDTO.lat());
+        restaurant.setLng(restaurantDTO.lng());
 
         return restaurant;
     }

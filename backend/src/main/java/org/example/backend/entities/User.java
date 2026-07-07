@@ -45,6 +45,7 @@ public class User {
 
     private LocalDateTime sessionTokenExpiresAt;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "users_restaurants",

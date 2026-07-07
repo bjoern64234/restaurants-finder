@@ -51,24 +51,37 @@ class RestaurantControllerTest {
     // --- GET /api/restaurants ---
 
     @Test
-    void getRestaurants_returnsListOfRestaurants() throws Exception {
-        when(restaurantService.findAllRestaurants()).thenReturn(List.of(restaurant));
+    void getRestaurants_returnsFavoritesOfAuthenticatedUser() throws Exception {
+        User user = new User();
+        when(sessionService.getUserBySessionToken("valid-token")).thenReturn(user);
+        when(restaurantService.findFavoriteRestaurantsForUser(user)).thenReturn(List.of(restaurant));
 
-        mockMvc.perform(get("/api/restaurants"))
+        mockMvc.perform(get("/api/restaurants").header("Authorization", "Bearer valid-token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].placeId").value("place-123"));
 
-        verify(restaurantService, times(1)).findAllRestaurants();
+        verify(sessionService).getUserBySessionToken("valid-token");
+        verify(restaurantService, times(1)).findFavoriteRestaurantsForUser(user);
     }
 
     @Test
-    void getRestaurants_returnsEmptyList_whenNoneExist() throws Exception {
-        when(restaurantService.findAllRestaurants()).thenReturn(List.of());
+    void getRestaurants_returnsEmptyList_whenUserHasNoFavorites() throws Exception {
+        User user = new User();
+        when(sessionService.getUserBySessionToken("valid-token")).thenReturn(user);
+        when(restaurantService.findFavoriteRestaurantsForUser(user)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/restaurants"))
+        mockMvc.perform(get("/api/restaurants").header("Authorization", "Bearer valid-token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    void getRestaurants_throwsException_whenAuthorizationHeaderMissing() throws Exception {
+        mockMvc.perform(get("/api/restaurants"));
+
+        verifyNoInteractions(sessionService);
+        verifyNoInteractions(restaurantService);
     }
 
     // --- GET /api/restaurants/{placeId} ---
@@ -97,7 +110,7 @@ class RestaurantControllerTest {
 
     @Test
     void create_returnsCreatedRestaurant_whenValidTokenProvided() throws Exception {
-        RestaurantDTO dto = new RestaurantDTO("place-id");
+        RestaurantDTO dto = RestaurantDTO.builder().placeId("place-id").build();
         User user = new User();
 
         when(sessionService.getUserBySessionToken("valid-token")).thenReturn(user);
@@ -116,7 +129,7 @@ class RestaurantControllerTest {
 
     @Test
     void create_throwsException_whenAuthorizationHeaderMissing() throws Exception {
-        RestaurantDTO dto = new RestaurantDTO("place-id");
+        RestaurantDTO dto = RestaurantDTO.builder().placeId("place-id").build();
 
         mockMvc.perform(post("/api/restaurants")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -128,7 +141,7 @@ class RestaurantControllerTest {
 
     @Test
     void create_throwsException_whenAuthorizationHeaderMalformed() throws Exception {
-        RestaurantDTO dto = new RestaurantDTO("place-id");
+        RestaurantDTO dto = RestaurantDTO.builder().placeId("place-id").build();
 
         mockMvc.perform(post("/api/restaurants")
                         .header("Authorization", "InvalidTokenFormat")

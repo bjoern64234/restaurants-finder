@@ -74,11 +74,29 @@ class RestaurantServiceTest {
         assertThat(result).isEmpty();
     }
 
+    // --- findFavoriteRestaurantsForUser ---
+
+    @Test
+    void findFavoriteRestaurantsForUser_returnsUsersFavorites() {
+        user.getFavorite_restaurants().add(restaurant);
+
+        List<Restaurant> result = restaurantService.findFavoriteRestaurantsForUser(user);
+
+        assertThat(result).containsExactly(restaurant);
+    }
+
+    @Test
+    void findFavoriteRestaurantsForUser_returnsEmptyList_whenUserHasNoFavorites() {
+        List<Restaurant> result = restaurantService.findFavoriteRestaurantsForUser(user);
+
+        assertThat(result).isEmpty();
+    }
+
     // --- saveRestaurant ---
 
     @Test
     void saveRestaurant_addsRestaurantToFavorites_andReturnsRestaurant() {
-        RestaurantDTO dto = new RestaurantDTO("place-123"); // ggf. weitere Felder anpassen
+        RestaurantDTO dto = RestaurantDTO.builder().placeId("place-123").build();
         when(restaurantRepository.findRestaurantByPlaceId("place-123"))
                 .thenReturn(Optional.of(restaurant));
 
@@ -91,7 +109,7 @@ class RestaurantServiceTest {
 
     @Test
     void saveRestaurant_throwsException_whenRestaurantNotFound() {
-        RestaurantDTO dto = new RestaurantDTO("unknown-place");
+        RestaurantDTO dto = RestaurantDTO.builder().placeId("unknown-place").build();
         when(restaurantRepository.findRestaurantByPlaceId("unknown-place"))
                 .thenReturn(Optional.empty());
 
