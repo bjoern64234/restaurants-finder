@@ -18,6 +18,7 @@ import "./MapView.css";
 
 import MyLocation from "../../assets/my-location.png";
 import HeartIcon from "../../assets/heart.png";
+import RemoveHeart from "../../assets/removeHeart.png";
 
 import {MyLocationMarker} from "../MyLocationMarker/MyLocationMarker.tsx";
 import {RestaurantMarker} from "../RestaurantMarker/RestaurantMarker.tsx";
@@ -67,6 +68,7 @@ export default function MapView() {
         lng: INITIAL_CENTER[1],
     });
     const [restaurants, setRestaurants] = useState<RestaurantFeature[]>([]);
+    const [favRestaurants, setFavRestaurants] = useState<RestaurantFeature[]>([]);
     const previewMapRef = useRef<LeafletMap | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     // Fehlermeldung nach 5s automatisch ausblenden; Timer wird bei neuer Meldung/Unmount aufgeräumt
@@ -137,6 +139,23 @@ export default function MapView() {
         }
     }
 
+    async function toggleFavoriteRestaurants() {
+        if (favRestaurants.length > 0) {
+            setFavRestaurants([]);
+        } else {
+            try {
+                const res = await findFavoriteRestaurants();
+                setFavRestaurants(res.data.features);
+                if (res.data.features.length === 0) {
+                    setErrorMessage("No Favorite Restaurants found")
+                }
+            } catch (error) {
+                setErrorMessage((error as Error).message);
+            }
+        }
+
+    }
+
     return (
         <div className={"map-wrapper"}>
             <div className="top-bar">
@@ -146,11 +165,11 @@ export default function MapView() {
             <div className="map-button-group">
                 <button
                     title={"Show Favorites"}
-                    onClick={findFavoriteRestaurants}
+                    onClick={toggleFavoriteRestaurants}
                     className={"map-button"}
-                    aria-label={"Favoriten anzeigen"}
+                    aria-label={"Favoriten toggeln"}
                 >
-                    <img src={HeartIcon} alt={""}/>
+                    <img src={favRestaurants.length > 0 ? RemoveHeart : HeartIcon} alt={""}/>
                 </button>
                 <button
                     title={"Fly home"}
