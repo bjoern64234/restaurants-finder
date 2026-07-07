@@ -12,7 +12,15 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class SessionService {
 
+    private static final String PREFIX = "Bearer ";
     private final UserRepository userRepository;
+
+    public String extractSessionToken(String authorization) {
+        if (authorization == null || !authorization.startsWith(PREFIX)) {
+            throw new InvalidSessionTokenException("Missing or malformed Authorization header");
+        }
+        return authorization.substring(PREFIX.length());
+    }
 
     public User getUserBySessionToken(String sessionToken) {
         User user = userRepository.findBySessionToken(sessionToken)

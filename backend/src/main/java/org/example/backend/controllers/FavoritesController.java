@@ -1,32 +1,23 @@
 package org.example.backend.controllers;
 
-import jakarta.validation.constraints.NotBlank;
 import org.example.backend.dtos.search.SearchPlaceResponse;
-import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.services.FavoritesService;
-import org.springframework.validation.annotation.Validated;
+import org.example.backend.services.SessionService;
 import org.springframework.web.bind.annotation.*;
 
-@Validated
 @RestController
 @RequestMapping("/api")
 public class FavoritesController {
     private final FavoritesService favoritesService;
+    private final SessionService sessionService;
 
-    public FavoritesController(FavoritesService favoritesService) {
+    public FavoritesController(FavoritesService favoritesService, SessionService sessionService) {
         this.favoritesService = favoritesService;
+        this.sessionService = sessionService;
     }
 
     @GetMapping("/favorites")
     public SearchPlaceResponse searchForFavorites(@RequestHeader("Authorization") String authorization) {
-        return this.favoritesService.findFavorites(extractSessionToken(authorization));
+        return this.favoritesService.findFavorites(sessionService.extractSessionToken(authorization));
     }
-
-    private String extractSessionToken(String authorization) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new InvalidSessionTokenException("Missing or malformed Authorization header");
-        }
-        return authorization.substring("Bearer ".length());
-    }
-
 }

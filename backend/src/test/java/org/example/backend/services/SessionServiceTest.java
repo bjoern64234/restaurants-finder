@@ -61,4 +61,15 @@ class SessionServiceTest {
         assertThrows(InvalidSessionTokenException.class,
                 () -> sessionService.getUserBySessionToken("expired-token"));
     }
+
+    @Test
+    void extractSessionToken_shouldReturnToken_whenHeaderIsValid() {
+        assertEquals("abc", sessionService.extractSessionToken("Bearer abc"));
+    }
+
+    @Test
+    void extractSessionToken_shouldThrow_whenHeaderIsNullOrMalformed() {
+        assertThrows(InvalidSessionTokenException.class, () -> sessionService.extractSessionToken(null));
+        assertThrows(InvalidSessionTokenException.class, () -> sessionService.extractSessionToken("NotBearer x"));
+    }
 }

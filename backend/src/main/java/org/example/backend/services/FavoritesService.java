@@ -17,18 +17,17 @@ import java.util.List;
 public class FavoritesService {
     @Value("${GEOAPIFY_API_KEY}")
     private String apiKey;
-    private final UserRepository userRepo;
+    private final SessionService sessionService;
     private final RestClient geoapifyRestClient;
 
-    public FavoritesService(RestClient geoapifyRestClient, UserRepository userRepo) {
-        this.userRepo = userRepo;
+    public FavoritesService(RestClient geoapifyRestClient, SessionService sessionService) {
+        this.sessionService = sessionService;
         this.geoapifyRestClient = geoapifyRestClient;
     }
 
 
     public SearchPlaceResponse findFavorites(String token) {
-        User actualUser = userRepo.findBySessionToken(token)
-                .orElseThrow(() -> new InvalidSessionTokenException("Session token is invalid or already expired"));
+        User actualUser = sessionService.getUserBySessionToken(token);
 
         List<FeaturesDTO> allFeatures = new ArrayList<>();
         for (Restaurant fav : actualUser.favorite_restaurants) {

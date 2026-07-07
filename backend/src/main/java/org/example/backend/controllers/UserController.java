@@ -6,9 +6,9 @@ import org.example.backend.dtos.auth.AuthResponse;
 import org.example.backend.dtos.auth.LoginRequest;
 import org.example.backend.dtos.auth.RegisterRequest;
 import org.example.backend.entities.User;
-import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.repos.UserRepository;
 import org.example.backend.services.UserService;
+import org.example.backend.services.SessionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +24,7 @@ public class UserController {
 
     private final UserRepository repo;
     private final UserService userService;
+    private final SessionService sessionService;
 
     // REGISTER
     @PostMapping("/register")
@@ -42,15 +43,8 @@ public class UserController {
     // LOGOUT
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authorization) {
-        userService.logout(extractSessionToken(authorization));
+        userService.logout(sessionService.extractSessionToken(authorization));
         return ResponseEntity.noContent().build();
-    }
-
-    private String extractSessionToken(String authorization) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new InvalidSessionTokenException("Missing or malformed Authorization header");
-        }
-        return authorization.substring("Bearer ".length());
     }
 
     // FOR DEBUG

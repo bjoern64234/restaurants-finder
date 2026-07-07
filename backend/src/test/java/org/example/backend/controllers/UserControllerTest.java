@@ -7,6 +7,7 @@ import org.example.backend.exceptions.DuplicateUserException;
 import org.example.backend.exceptions.InvalidCredentialsException;
 import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.repos.UserRepository;
+import org.example.backend.services.SessionService;
 import org.example.backend.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,9 @@ class UserControllerTest {
 
     @MockitoBean
     private UserRepository userRepository;
+
+    @MockitoBean
+    private SessionService sessionService;
 
     private User user;
     @Autowired
@@ -151,6 +155,7 @@ class UserControllerTest {
 
     @Test
     void logout_shouldReturnNoContent_whenTokenIsValid() throws Exception {
+        when(sessionService.extractSessionToken("Bearer valid-token")).thenReturn("valid-token");
         mockMvc.perform(post("/api/logout")
                         .header("Authorization", "Bearer valid-token"))
                 .andExpect(status().isNoContent());
@@ -160,6 +165,7 @@ class UserControllerTest {
 
     @Test
     void logout_shouldReturnUnauthorized_whenTokenIsInvalid() throws Exception {
+        when(sessionService.extractSessionToken("Bearer bad-token")).thenReturn("bad-token");
         doThrow(new InvalidSessionTokenException("Session token is invalid or already expired"))
                 .when(userService).logout("bad-token");
 
@@ -170,6 +176,8 @@ class UserControllerTest {
 
     @Test
     void logout_shouldReturnUnauthorized_whenAuthorizationHeaderIsMalformed() throws Exception {
+        when(sessionService.extractSessionToken("NotBearer sometoken"))
+                .thenThrow(new InvalidSessionTokenException("Missing or malformed Authorization header"));
         mockMvc.perform(post("/api/logout")
                         .header("Authorization", "NotBearer sometoken"))
                 .andExpect(status().isUnauthorized());
@@ -251,4 +259,6 @@ class UserControllerTest {
 
         verify(userRepository).deleteById(1L);
     }
+
+
 }

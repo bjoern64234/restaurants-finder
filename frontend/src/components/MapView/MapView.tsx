@@ -17,8 +17,8 @@ import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import "./MapView.css";
 
 import MyLocation from "../../assets/my-location.png";
-import HeartIcon from "../../assets/heart.png";
-import RemoveHeart from "../../assets/removeHeart.png";
+import HeartBlack from "../../assets/heart-black.png";
+import HeartRed from "../../assets/heart-red.png";
 
 import {MyLocationMarker} from "../MyLocationMarker/MyLocationMarker.tsx";
 import {RestaurantMarker} from "../RestaurantMarker/RestaurantMarker.tsx";
@@ -55,6 +55,12 @@ const createClusterIcon = (cluster: MarkerCluster) =>
     divIcon({
         html: `<span>${cluster.getChildCount()}</span>`,
         className: "custom-cluster",
+        iconSize: point(40, 40, true),
+    });
+const createFavClusterIcon = (cluster: MarkerCluster) =>
+    divIcon({
+        html: `<span>${cluster.getChildCount()}</span>`,
+        className: "custom-fav-cluster",
         iconSize: point(40, 40, true),
     });
 
@@ -145,15 +151,15 @@ export default function MapView() {
         } else {
             try {
                 const res = await findFavoriteRestaurants();
-                setFavRestaurants(res.data.features);
                 if (res.data.features.length === 0) {
                     setErrorMessage("No Favorite Restaurants found")
+                } else {
+                    setFavRestaurants(res.data.features);
                 }
             } catch (error) {
                 setErrorMessage((error as Error).message);
             }
         }
-
     }
 
     return (
@@ -169,7 +175,7 @@ export default function MapView() {
                     className={"map-button"}
                     aria-label={"Favoriten toggeln"}
                 >
-                    <img src={favRestaurants.length > 0 ? RemoveHeart : HeartIcon} alt={""}/>
+                    <img src={favRestaurants.length > 0 ? HeartRed : HeartBlack} alt={""}/>
                 </button>
                 <button
                     title={"Fly home"}
@@ -205,6 +211,17 @@ export default function MapView() {
                     }}
                 />
 
+
+                {favRestaurants.length > 0 ?
+                    <MarkerClusterGroup chunkedLoading iconCreateFunction={createFavClusterIcon}>
+                        {favRestaurants.map(restaurant => (
+                            <RestaurantMarker
+                                fav={true}
+                                key={restaurant.properties.place_id}
+                                restaurant={restaurant}
+                            />
+                        ))}
+                    </MarkerClusterGroup> : null}
                 {restaurants.length > 0 ? <MarkerClusterGroup chunkedLoading iconCreateFunction={createClusterIcon}>
                     {restaurants.map(restaurant => (
                         <RestaurantMarker

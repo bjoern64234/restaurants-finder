@@ -4,14 +4,15 @@ import {customIcon} from "../../assets/location-icon.ts";
 
 interface RestaurantMarkerProps {
     restaurant: RestaurantFeature;
+    fav?: boolean
 }
 
-export function RestaurantMarker({restaurant}: RestaurantMarkerProps) {
+export function RestaurantMarker({restaurant, fav}: Readonly<RestaurantMarkerProps>) {
     const {name, lat, lon, street, housenumber, opening_hours, catering, contact} = restaurant.properties;
 
     return (
         <Marker position={[lat, lon]} icon={customIcon}>
-            <Tooltip permanent offset={[0, -20]} direction={"top"} interactive>
+            <Tooltip permanent offset={[0, -20]} direction={"top"} interactive className={fav ? "active" : ""}>
                 {name}
             </Tooltip>
             <Popup>
