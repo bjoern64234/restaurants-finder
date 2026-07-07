@@ -19,7 +19,6 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "restaurants")
 public class Restaurant {
 
@@ -29,28 +28,6 @@ public class Restaurant {
 
     @Column(unique = true)
     private String placeId;
-
-    private String name;
-
-    private String formatted;
-
-    private String website;
-
-    private String openingHours;
-
-    private String phone;
-
-    private String cuisine;
-
-    private Double lat;
-
-    private Double lng;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "favorite_restaurants")
