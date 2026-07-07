@@ -20,4 +20,11 @@ public class RestClientConfig {
                 .baseUrl("https://api.geoapify.com/v1/geocode")
                 .build();
     }
+
+    @Bean
+    public RestClient githubRestClient() {
+        return RestClient.builder()
+                .baseUrl("https://api.github.com")
+                .build();
+    }
 }

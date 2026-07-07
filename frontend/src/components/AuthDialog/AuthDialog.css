@@ -79,6 +79,35 @@
     cursor: not-allowed;
 }
 
+.auth-dialog__divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-h);
+    text-transform: uppercase;
+}
+
+.auth-dialog__divider::before,
+.auth-dialog__divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.auth-dialog__github {
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--bg);
+    color: var(--text-h);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .auth-dialog__switch-row {
     margin: 0;
     font-size: 14px;

@@ -48,6 +48,10 @@ public class UserService {
             throw new InvalidCredentialsException("Invalid username or password");
         }
 
+        return issueSessionToken(user);
+    }
+
+    public String issueSessionToken(User user) {
         String sessionToken = UUID.randomUUID().toString();
         user.setSessionToken(sessionToken);
         user.setSessionTokenExpiresAt(LocalDateTime.now().plusHours(SESSION_TOKEN_DURATION_HOURS));

@@ -82,6 +82,16 @@ export function AuthDialog({open, onClose}: Readonly<Props>): ReactElement {
         }
     };
 
+    function loginWithGithub() {
+        const host = window.location.host === "localhost:5173" ?
+            "http://localhost:8080"
+            :
+            window.location.origin
+
+
+        window.open(host + '/oauth2/authorization/github', '_self')
+    }
+
     return (
         <dialog
             ref={dialogRef}
@@ -155,6 +165,16 @@ export function AuthDialog({open, onClose}: Readonly<Props>): ReactElement {
                         {mode === "login" ? "Anmelden" : "Registrieren"}
                     </button>
                 </form>
+
+                <div className="auth-dialog__divider">oder</div>
+
+                <button
+                    type="button"
+                    className="auth-dialog__github"
+                    onClick={loginWithGithub}
+                >
+                    Mit GitHub anmelden
+                </button>
 
                 <p className="auth-dialog__switch-row">
                     {mode === "login" ? "Noch kein Konto?" : "Schon ein Konto?"}
