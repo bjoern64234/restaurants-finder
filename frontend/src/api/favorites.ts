@@ -13,5 +13,8 @@ export const saveFavoriteRestaurant = (
 };
 
 export const deleteFavoriteRestaurant = (id: string): Promise<AxiosResponse<void>> => {
+  if (!/^[A-Za-z0-9_-]+$/.test(id)) {
+    throw new Error("Invalid place id");
+  }
   return protectedApi.delete(`/restaurants/${id}`);
 };
