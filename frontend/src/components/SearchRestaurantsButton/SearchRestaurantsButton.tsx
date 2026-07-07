@@ -10,6 +10,7 @@ export function SearchRestaurantsButton({onClick}: Readonly<Props>): ReactElemen
 
     return (
         <button
+            title={"Find nearby Restaurants"}
             onClick={onClick}
             className="map-button"
             aria-label="Restaurants in der Nähe suchen"

@@ -17,6 +17,7 @@ import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import "./MapView.css";
 
 import MyLocation from "../../assets/my-location.png";
+import HeartIcon from "../../assets/heart.png";
 
 import {MyLocationMarker} from "../MyLocationMarker/MyLocationMarker.tsx";
 import {RestaurantMarker} from "../RestaurantMarker/RestaurantMarker.tsx";
@@ -105,6 +106,8 @@ export default function MapView() {
         mapRef.current?.flyTo(latLng, SEARCH_ZOOM)
     }
 
+    function findFavorites()
+
     async function handleFindRestaurants() {
         const map = mapRef.current;
         if (!map) {
@@ -142,6 +145,15 @@ export default function MapView() {
             </div>
             <div className="map-button-group">
                 <button
+                    title={"Show Favorites"}
+                    onClick={findFavorites}
+                    className={"map-button"}
+                    aria-label={"Favoriten anzeigen"}
+                >
+                    <img src={HeartIcon} alt={""}/>
+                </button>
+                <button
+                    title={"Fly home"}
                     onClick={goToMyLocation}
                     className={"map-button"}
                     aria-label={"Zu meinem Standort springen"}
