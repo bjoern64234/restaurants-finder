@@ -1,17 +1,8 @@
-import {publicApi} from "./publicApi.ts";
+import {protectedApi} from "./protectedApi.ts";
 import type {AxiosResponse} from "axios";
 import type {RestaurantResponse} from "../types/restaurant.type";
 
-type SearchNearbyParams = {
-    lat: string,
-    lng: string,
-    radius: string
-};
 
-export const findFavoriteRestaurants = (
-    params: SearchNearbyParams
-): Promise<AxiosResponse<RestaurantResponse>> => {
-    return publicApi.get("/favorites", {
-        params,
-    });
+export const findFavoriteRestaurants = (): Promise<AxiosResponse<RestaurantResponse>> => {
+    return protectedApi.get("/favorites");
 };

@@ -37,6 +37,7 @@ import type {Position} from "../../types/position.type.ts";
 import type {AxiosResponse} from "axios";
 import {searchNearbyRestaurants} from "../../api/search-nearby-restaurants.ts";
 import SearchLocationForm from "../SearchLocationForm/SearchLocationForm.tsx";
+import {findFavoriteRestaurants} from "../../api/find-favorite-restaurants.ts";
 
 // Eine reine Verhaltenskomponente (return null)
 function SyncPreview({previewRef}: {
@@ -106,7 +107,6 @@ export default function MapView() {
         mapRef.current?.flyTo(latLng, SEARCH_ZOOM)
     }
 
-    function findFavorites()
 
     async function handleFindRestaurants() {
         const map = mapRef.current;
@@ -146,7 +146,7 @@ export default function MapView() {
             <div className="map-button-group">
                 <button
                     title={"Show Favorites"}
-                    onClick={findFavorites}
+                    onClick={findFavoriteRestaurants}
                     className={"map-button"}
                     aria-label={"Favoriten anzeigen"}
                 >
