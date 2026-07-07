@@ -31,7 +31,7 @@ public class RestaurantService {
 
     public Restaurant saveRestaurant(RestaurantDTO restaurantDTO, User user) {
         Restaurant restaurant = this.restaurantRepository.findRestaurantByPlaceId(restaurantDTO.placeId())
-                .orElseGet(() -> this.restaurantRepository.save(this.restaurantMapper.toEntity(restaurantDTO)));
+                .orElseThrow(() -> new RestaurantNotFoundException(restaurantDTO.placeId()));
 
         user.getFavorite_restaurants().add(restaurant);
         this.userRepository.save(user);
