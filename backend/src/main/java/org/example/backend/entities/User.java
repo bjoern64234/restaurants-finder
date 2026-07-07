@@ -53,5 +53,3 @@ public class User {
     )
     private Set<Restaurant> favorite_restaurants = new HashSet<>();
 }
-
-
