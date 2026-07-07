@@ -33,7 +33,7 @@ import {
 
 import type {RestaurantFeature, RestaurantResponse} from "../../types/restaurant.type.ts";
 import type {Position} from "../../types/position.type.ts";
-import type {AxiosResponse} from "axios";
+import {type AxiosResponse} from "axios";
 import {searchNearbyRestaurants} from "../../api/search-nearby-restaurants.ts";
 import SearchLocationForm from "../SearchLocationForm/SearchLocationForm.tsx";
 
@@ -134,11 +134,30 @@ export default function MapView() {
         }
     }
 
+    function login() {
+        const host = window.location.host === "localhost:5173" ?
+            "http://localhost:8080"
+            :
+            window.location.origin
+
+        window.open(host + '/oauth2/authorization/github', '_self')
+    }
+
+    function logout() {
+        
+    }
+
     return (
         <div className={"map-wrapper"}>
             <div className="top-bar">
                 <SearchLocationForm onSubmit={flyToLocation}/>
                 <AccountButton/>
+                <button onClick={login}>
+                    Login
+                </button>
+                <button onClick={logout}>
+                    Logout
+                </button>
             </div>
             <div className="map-button-group">
                 <button

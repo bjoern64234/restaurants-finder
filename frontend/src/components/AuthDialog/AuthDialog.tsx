@@ -154,6 +154,7 @@ export function AuthDialog({open, onClose}: Readonly<Props>): ReactElement {
                     <button type="submit" className="auth-dialog__submit" disabled={isSubmitting}>
                         {mode === "login" ? "Anmelden" : "Registrieren"}
                     </button>
+
                 </form>
 
                 <p className="auth-dialog__switch-row">

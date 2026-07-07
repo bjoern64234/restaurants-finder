@@ -11,7 +11,7 @@ type SearchNearbyParams = {
 export const searchNearbyRestaurants = (
     params: SearchNearbyParams
 ): Promise<AxiosResponse<RestaurantResponse>> => {
-    return publicApi.get("/search", {
+    return publicApi.get("/geoapify/search", {
         params,
     });
 };

@@ -6,7 +6,7 @@ export const autocompleteLocations = (
     query: string,
     signal?: AbortSignal
 ): Promise<AxiosResponse<AutocompleteResult>> => {
-    return publicApi.get("/autocomplete", {
+    return publicApi.get("/geoapify/autocomplete", {
         params: {query},
         signal,
     });
