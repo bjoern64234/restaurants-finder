@@ -3,8 +3,6 @@ package org.example.backend.services;
 import org.example.backend.dtos.search.FeaturesDTO;
 import org.example.backend.dtos.search.SearchPlaceResponse;
 import org.example.backend.entities.User;
-import org.example.backend.exceptions.InvalidSessionTokenException;
-import org.example.backend.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
