@@ -28,7 +28,7 @@ public class OAuthUserService implements OAuth2UserService<OAuth2UserRequest, OA
 
     @Override
     public OAuth2User loadUser(@NonNull OAuth2UserRequest request) {
-        OAuth2User oAuth2User = delegate.loadUser(request);
+        OAuth2User oAuth2User = fetchOAuth2User(request);
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
 
         String email = (String) attributes.get("email");
@@ -45,6 +45,10 @@ public class OAuthUserService implements OAuth2UserService<OAuth2UserRequest, OA
         }
 
         return new DefaultOAuth2User(oAuth2User.getAuthorities(), attributes, "id");
+    }
+
+    OAuth2User fetchOAuth2User(OAuth2UserRequest request) {
+        return delegate.loadUser(request);
     }
 
     private void createGithubUser(String email, Map<String, Object> attributes) {
