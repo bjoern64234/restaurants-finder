@@ -28,7 +28,7 @@ public class FavoritesService {
         User actualUser = sessionService.getUserBySessionToken(token);
 
         List<FeaturesDTO> allFeatures = new ArrayList<>();
-        for (Restaurant fav : actualUser.favorite_restaurants) {
+        for (Restaurant fav : actualUser.getFavorite_restaurants()) {
             try {
                 SearchPlaceResponse response = geoapifyRestClient.get()
                         .uri(uriBuilder -> uriBuilder
