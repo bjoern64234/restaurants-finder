@@ -107,7 +107,6 @@ class RestaurantServiceTest {
         assertThat(user.getFavorite_restaurants()).contains(restaurant);
         assertThat(restaurant.getUsers()).contains(user);
         verify(restaurantRepository, never()).save(any());
-        verify(userRepository).save(user);
     }
 
     @Test
@@ -123,7 +122,6 @@ class RestaurantServiceTest {
         assertThat(result.getPlaceId()).isEqualTo("new-place");
         assertThat(user.getFavorite_restaurants()).contains(result);
         verify(restaurantRepository).save(any(Restaurant.class));
-        verify(userRepository).save(user);
     }
 
     // --- findRestaurantByPlaceId ---

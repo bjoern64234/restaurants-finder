@@ -49,8 +49,6 @@ public class RestaurantService {
         managedUser.getFavorite_restaurants().add(restaurant);
         restaurant.getUsers().add(managedUser);
 
-        userRepository.save(managedUser);
-
         return restaurant;
     }
 
