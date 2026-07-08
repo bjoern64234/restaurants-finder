@@ -22,6 +22,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OAuthUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+    private static final String EMAIL_ATTRIBUTE = "email";
+
     private final UserRepository userRepository;
     private final RestClient githubRestClient;
     private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
@@ -31,14 +33,14 @@ public class OAuthUserService implements OAuth2UserService<OAuth2UserRequest, OA
         OAuth2User oAuth2User = fetchOAuth2User(request);
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
 
-        String email = (String) attributes.get("email");
+        String email = (String) attributes.get(EMAIL_ATTRIBUTE);
         if (email == null) {
             email = fetchPrimaryVerifiedEmail(request.getAccessToken().getTokenValue());
         }
         if (email == null) {
             throw new OAuth2AuthenticationException("GitHub account has no accessible verified email address");
         }
-        attributes.put("email", email);
+        attributes.put(EMAIL_ATTRIBUTE, email);
 
         if (userRepository.findByEmail(email).isEmpty()) {
             createGithubUser(email, attributes);
@@ -83,7 +85,7 @@ public class OAuthUserService implements OAuth2UserService<OAuth2UserRequest, OA
 
         return emails.stream()
                 .filter(e -> Boolean.TRUE.equals(e.get("primary")) && Boolean.TRUE.equals(e.get("verified")))
-                .map(e -> (String) e.get("email"))
+                .map(e -> (String) e.get(EMAIL_ATTRIBUTE))
                 .findFirst()
                 .orElse(null);
     }

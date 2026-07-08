@@ -10,6 +10,8 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const SESSION_TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
 
@@ -27,7 +29,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const params = new URLSearchParams(window.location.search);
         const oauthToken = params.get("token");
         if (oauthToken) {
-            login(oauthToken);
+            if (SESSION_TOKEN_PATTERN.test(oauthToken)) {
+                login(oauthToken);
+            }
             params.delete("token");
             const nextSearch = params.toString();
             window.history.replaceState(null, "", window.location.pathname + (nextSearch ? `?${nextSearch}` : ""));
