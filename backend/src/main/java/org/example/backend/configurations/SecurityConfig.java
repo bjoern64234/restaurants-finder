@@ -30,9 +30,14 @@ public class SecurityConfig {
     @Value("${frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
+    @SuppressWarnings("java:S4502")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
+                // Safe to disable CSRF because:
+                // - REST API is stateless
+                // - Authentication uses bearer/session tokens in headers, not cookies
+                // - Browsers do not automatically attach Authorization headers
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
