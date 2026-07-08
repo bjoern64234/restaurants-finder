@@ -1,12 +1,16 @@
 import {Marker, Popup, Tooltip} from "react-leaflet";
 import type {RestaurantFeature} from "../../types/restaurant.type.ts";
 import {customIcon} from "../../assets/location-icon.ts";
+import {LikeButton} from "./LikeButton.tsx";
 
 interface RestaurantMarkerProps {
     restaurant: RestaurantFeature;
+    favoriteId: number | null;
+    onFavorited: (placeId: string, id: number) => void;
+    onUnfavorited: (placeId: string) => void;
 }
 
-export function RestaurantMarker({restaurant}: RestaurantMarkerProps) {
+export function RestaurantMarker({restaurant, favoriteId, onFavorited, onUnfavorited}: RestaurantMarkerProps) {
     const {name, lat, lon, street, housenumber, opening_hours, catering, contact} = restaurant.properties;
 
     return (
@@ -18,6 +22,12 @@ export function RestaurantMarker({restaurant}: RestaurantMarkerProps) {
                 <div style={{minWidth: "220px"}}>
                     <h3 style={{margin: "0 0 6px 0", fontSize: "16px"}}>
                         {name}
+                        <LikeButton
+                            restaurant={restaurant.properties}
+                            favoriteId={favoriteId}
+                            onFavorited={onFavorited}
+                            onUnfavorited={onUnfavorited}
+                        />
                     </h3>
 
                     <p style={{margin: "0 0 6px 0", fontSize: "13px", color: "#555"}}>

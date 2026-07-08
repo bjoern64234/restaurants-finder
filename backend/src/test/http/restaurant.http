@@ -1,0 +1,21 @@
+### Get all restaurants
+GET {{localhost}}:{{port}}/api/restaurants
+
+### Create a favorite restaurant
+POST {{localhost}}:{{port}}/api/restaurants
+Content-Type: application/json
+
+{
+  "placeId": "5132a770a9effd234059ef7f362850da4a40f00103f9018075a67e0000000092031052657374617572616e74204e61786f73"
+}
+
+> {%
+  var res = response.body
+  client.global.set("id", res.placeId)
+%}
+
+### Get restaurant by id
+GET {{localhost}}:{{port}}/api/restaurants/{{id}}
+
+### Delete restaurant by id
+DELETE {{localhost}}:{{port}}/api/restaurants/{{id}}

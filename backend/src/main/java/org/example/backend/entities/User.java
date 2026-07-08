@@ -8,6 +8,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Setter
 @Getter
 @Entity
@@ -42,4 +45,12 @@ public class User {
 
     private LocalDateTime sessionTokenExpiresAt;
 
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "users_restaurants",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "place_id")
+    )
+    private Set<Restaurant> favorite_restaurants = new HashSet<>();
 }

@@ -30,3 +30,21 @@ export interface RestaurantContact {
 export interface RestaurantCatering {
     cuisine: string;
 }
+
+export interface SaveFavoriteRestaurantParams {
+    name: string;
+    formatted: string;
+    website: string | null;
+    openingHours: string | null;
+    phone: string | null;
+    cuisine: string | null;
+    lat: number;
+    lng: number;
+    placeId: string;
+}
+
+export interface FavoriteRestaurant extends SaveFavoriteRestaurantParams {
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+}

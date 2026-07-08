@@ -2,6 +2,7 @@ package org.example.backend.exceptions;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.example.backend.exceptions.restaurant.RestaurantNotFoundException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +37,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorMessage handleRestaurantNotFoundException(RestaurantNotFoundException ex) {
+        return new ErrorMessage(ex.getMessage(), HttpStatus.NOT_FOUND.value(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessage handleConstraintViolationException(ConstraintViolationException ex) {
@@ -60,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorMessage handleException() {
-        return new ErrorMessage("Ooops, something went wrong", HttpStatus.INTERNAL_SERVER_ERROR.value(), LocalDateTime.now());
+    public ErrorMessage handleException(Exception ex) {
+        return new ErrorMessage("Ooops, something went wrong" + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), LocalDateTime.now());
     }
 }
