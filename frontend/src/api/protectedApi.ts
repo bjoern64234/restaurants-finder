@@ -13,3 +13,13 @@ protectedApi.interceptors.request.use((config) => {
 
     return config;
 });
+
+protectedApi.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            window.dispatchEvent(new Event("auth:sessionExpired"));
+        }
+        return Promise.reject(error);
+    },
+);

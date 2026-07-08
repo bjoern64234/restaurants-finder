@@ -1,31 +1,34 @@
 package org.example.backend.controllers;
 
+import org.example.backend.configurations.SecurityConfig;
 import org.example.backend.dtos.auth.LoginRequest;
 import org.example.backend.dtos.auth.RegisterRequest;
 import org.example.backend.entities.User;
 import org.example.backend.exceptions.DuplicateUserException;
 import org.example.backend.exceptions.InvalidCredentialsException;
 import org.example.backend.exceptions.InvalidSessionTokenException;
-import org.example.backend.repos.UserRepository;
+import org.example.backend.security.OAuth2AuthenticationSuccessHandler;
+import org.example.backend.security.OAuthUserService;
+import org.example.backend.security.RestAuthenticationEntryPoint;
+import org.example.backend.services.SessionService;
 import org.example.backend.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
-import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
+@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
 class UserControllerTest {
 
     @Autowired
@@ -35,11 +38,18 @@ class UserControllerTest {
     private UserService userService;
 
     @MockitoBean
-    private UserRepository userRepository;
+    private SessionService sessionService;
 
-    private User user;
+    @MockitoBean
+    private OAuthUserService oAuthUserService;
+
+    @MockitoBean
+    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
     @Autowired
     private ObjectMapper objectMapper;
+
+    private User user;
 
     @BeforeEach
     void setUp() {
@@ -151,21 +161,25 @@ class UserControllerTest {
 
     @Test
     void logout_shouldReturnNoContent_whenTokenIsValid() throws Exception {
+        when(sessionService.getUserBySessionToken("valid-token")).thenReturn(user);
+
         mockMvc.perform(post("/api/logout")
                         .header("Authorization", "Bearer valid-token"))
                 .andExpect(status().isNoContent());
 
-        verify(userService).logout(eq("valid-token"));
+        verify(userService).logout(user);
     }
 
     @Test
     void logout_shouldReturnUnauthorized_whenTokenIsInvalid() throws Exception {
-        doThrow(new InvalidSessionTokenException("Session token is invalid or already expired"))
-                .when(userService).logout("bad-token");
+        when(sessionService.getUserBySessionToken("bad-token"))
+                .thenThrow(new InvalidSessionTokenException("Session token is invalid or already expired"));
 
         mockMvc.perform(post("/api/logout")
                         .header("Authorization", "Bearer bad-token"))
                 .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userService);
     }
 
     @Test
@@ -178,77 +192,10 @@ class UserControllerTest {
     }
 
     @Test
-    void logout_shouldReturnBadRequest_whenAuthorizationHeaderIsMissing() throws Exception {
+    void logout_shouldReturnUnauthorized_whenAuthorizationHeaderIsMissing() throws Exception {
         mockMvc.perform(post("/api/logout"))
-                .andExpect(status().isBadRequest());
-    }
+                .andExpect(status().isUnauthorized());
 
-    @Test
-    void getAll_shouldReturnListOfUsers() throws Exception {
-        when(userRepository.findAll()).thenReturn(List.of(user));
-
-        mockMvc.perform(get("/api"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].username").value("janedoe"));
-    }
-
-    @Test
-    void getById_shouldReturnUser_whenFound() throws Exception {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        mockMvc.perform(get("/api/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("janedoe"));
-    }
-
-    @Test
-    void getById_shouldReturnEmptyBody_whenNotFound() throws Exception {
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/api/99"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
-    }
-
-    @Test
-    void update_shouldReturnUpdatedUser_whenFound() throws Exception {
-        User updatePayload = new User();
-        updatePayload.setName("Jane Updated");
-        updatePayload.setEmail("jane.updated@example.com");
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        mockMvc.perform(put("/api/1")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(updatePayload)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Jane Updated"))
-                .andExpect(jsonPath("$.email").value("jane.updated@example.com"));
-    }
-
-    @Test
-    void update_shouldReturnEmptyBody_whenNotFound() throws Exception {
-        User updatePayload = new User();
-        updatePayload.setName("Jane Updated");
-        updatePayload.setEmail("jane.updated@example.com");
-
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(put("/api/99")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(updatePayload)))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
-
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    void delete_shouldReturnOk_andDeleteUserById() throws Exception {
-        mockMvc.perform(delete("/api/1"))
-                .andExpect(status().isOk());
-
-        verify(userRepository).deleteById(1L);
+        verifyNoInteractions(userService);
     }
 }
