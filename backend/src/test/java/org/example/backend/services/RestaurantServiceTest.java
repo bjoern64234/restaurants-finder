@@ -45,6 +45,7 @@ class RestaurantServiceTest {
         restaurant.setPlaceId("place-123");
 
         user = new User();
+        user.setId(1L);
         user.setFavorite_restaurants(new HashSet<>());
     }
 
@@ -75,6 +76,7 @@ class RestaurantServiceTest {
     @Test
     void findFavoriteRestaurantsForUser_returnsUsersFavorites() {
         user.getFavorite_restaurants().add(restaurant);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         List<Restaurant> result = restaurantService.findFavoriteRestaurantsForUser(user);
 
@@ -83,6 +85,8 @@ class RestaurantServiceTest {
 
     @Test
     void findFavoriteRestaurantsForUser_returnsEmptyList_whenUserHasNoFavorites() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
         List<Restaurant> result = restaurantService.findFavoriteRestaurantsForUser(user);
 
         assertThat(result).isEmpty();
@@ -91,28 +95,35 @@ class RestaurantServiceTest {
     // --- saveRestaurant ---
 
     @Test
-    void saveRestaurant_addsRestaurantToFavorites_andReturnsRestaurant() {
+    void saveRestaurant_addsRestaurantToFavorites_andReturnsRestaurant_whenRestaurantAlreadyExists() {
         RestaurantDTO dto = RestaurantDTO.builder().placeId("place-123").build();
         when(restaurantRepository.findRestaurantByPlaceId("place-123"))
                 .thenReturn(Optional.of(restaurant));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         Restaurant result = restaurantService.saveRestaurant(dto, user);
 
         assertThat(result).isEqualTo(restaurant);
         assertThat(user.getFavorite_restaurants()).contains(restaurant);
-        verify(userRepository, times(1)).save(user);
+        assertThat(restaurant.getUsers()).contains(user);
+        verify(restaurantRepository, never()).save(any());
+        verify(userRepository).save(user);
     }
 
     @Test
-    void saveRestaurant_throwsException_whenRestaurantNotFound() {
-        RestaurantDTO dto = RestaurantDTO.builder().placeId("unknown-place").build();
-        when(restaurantRepository.findRestaurantByPlaceId("unknown-place"))
+    void saveRestaurant_createsNewRestaurant_whenPlaceIdNotFound() {
+        RestaurantDTO dto = RestaurantDTO.builder().placeId("new-place").build();
+        when(restaurantRepository.findRestaurantByPlaceId("new-place"))
                 .thenReturn(Optional.empty());
+        when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        assertThatThrownBy(() -> restaurantService.saveRestaurant(dto, user))
-                .isInstanceOf(RestaurantNotFoundException.class);
+        Restaurant result = restaurantService.saveRestaurant(dto, user);
 
-        verify(userRepository, never()).save(any());
+        assertThat(result.getPlaceId()).isEqualTo("new-place");
+        assertThat(user.getFavorite_restaurants()).contains(result);
+        verify(restaurantRepository).save(any(Restaurant.class));
+        verify(userRepository).save(user);
     }
 
     // --- findRestaurantByPlaceId ---
@@ -143,12 +154,12 @@ class RestaurantServiceTest {
         user.getFavorite_restaurants().add(restaurant);
         when(restaurantRepository.findRestaurantByPlaceId("place-123"))
                 .thenReturn(Optional.of(restaurant));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         ResponseEntity<Restaurant> result = restaurantService.removeFavoriteRestaurant("place-123", user);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(user.getFavorite_restaurants()).doesNotContain(restaurant);
-        verify(userRepository, times(1)).save(user);
     }
 
     @Test

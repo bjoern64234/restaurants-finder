@@ -28,17 +28,28 @@ public class RestaurantService {
         return this.restaurantRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public List<Restaurant> findFavoriteRestaurantsForUser(User user) {
-        return new ArrayList<>(user.getFavorite_restaurants());
+        return new ArrayList<>(managedUser(user).getFavorite_restaurants());
     }
 
     @Transactional
     public Restaurant saveRestaurant(RestaurantDTO restaurantDTO, User user) {
-        Restaurant restaurant = this.restaurantRepository.findRestaurantByPlaceId(restaurantDTO.placeId())
-                .orElseThrow(() -> new RestaurantNotFoundException(restaurantDTO.placeId()));
+        // Check if restaurant already exists
+        Restaurant restaurant = restaurantRepository.findRestaurantByPlaceId(restaurantDTO.placeId())
+                .orElseGet(() -> {
+                    Restaurant r = new Restaurant();
+                    r.setPlaceId(restaurantDTO.placeId());
+                    return restaurantRepository.save(r);
+                });
 
-        user.getFavorite_restaurants().add(restaurant);
-        this.userRepository.save(user);
+        User managedUser = managedUser(user);
+
+        // Update both sides of the relationship
+        managedUser.getFavorite_restaurants().add(restaurant);
+        restaurant.getUsers().add(managedUser);
+
+        userRepository.save(managedUser);
 
         return restaurant;
     }
@@ -52,9 +63,13 @@ public class RestaurantService {
         Restaurant restaurant = this.restaurantRepository.findRestaurantByPlaceId(placeId)
                 .orElseThrow(() -> new RestaurantNotFoundException(placeId));
 
-        user.getFavorite_restaurants().remove(restaurant);
-        this.userRepository.save(user);
+        managedUser(user).getFavorite_restaurants().remove(restaurant);
 
         return ResponseEntity.ok().build();
+    }
+
+    private User managedUser(User user) {
+        return this.userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalStateException("Authenticated user no longer exists: " + user.getId()));
     }
 }
