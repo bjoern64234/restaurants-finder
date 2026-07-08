@@ -8,6 +8,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Setter
 @Getter
 @Entity
@@ -32,7 +35,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @NotBlank
     @JsonIgnore
+    @Column(nullable = false)
     private String password;
 
     @JsonIgnore
@@ -42,4 +47,12 @@ public class User {
 
     private String provider;
 
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "users_restaurants",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "place_id")
+    )
+    private Set<Restaurant> favorite_restaurants = new HashSet<>();
 }

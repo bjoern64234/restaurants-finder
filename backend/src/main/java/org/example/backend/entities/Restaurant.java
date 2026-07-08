@@ -1,0 +1,30 @@
+package org.example.backend.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
+
+@Setter
+@Getter
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "restaurants")
+public class Restaurant {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true)
+    private String placeId;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "favorite_restaurants")
+    private Set<User> users = new HashSet<>();
+}
