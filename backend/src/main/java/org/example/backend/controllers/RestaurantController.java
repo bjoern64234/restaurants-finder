@@ -3,10 +3,9 @@ package org.example.backend.controllers;
 import org.example.backend.dtos.restaurant.RestaurantDTO;
 import org.example.backend.entities.Restaurant;
 import org.example.backend.entities.User;
-import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.services.RestaurantService;
-import org.example.backend.services.SessionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,22 +15,18 @@ import java.util.List;
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
-    private final SessionService sessionService;
 
-    public RestaurantController(RestaurantService restaurantService, SessionService sessionService) {
+    public RestaurantController(RestaurantService restaurantService) {
         this.restaurantService = restaurantService;
-        this.sessionService = sessionService;
     }
 
     @GetMapping("/restaurants")
-    public List<Restaurant> getRestaurants(@RequestHeader("Authorization") String authorization) {
-        User user = sessionService.getUserBySessionToken(extractSessionToken(authorization));
+    public List<Restaurant> getRestaurants(@AuthenticationPrincipal User user) {
         return this.restaurantService.findFavoriteRestaurantsForUser(user);
     }
 
     @PostMapping("/restaurants")
-    public Restaurant create(@RequestBody RestaurantDTO restaurantDTO, @RequestHeader("Authorization") String authorization) {
-        User user = sessionService.getUserBySessionToken(extractSessionToken(authorization));
+    public Restaurant create(@RequestBody RestaurantDTO restaurantDTO, @AuthenticationPrincipal User user) {
         return this.restaurantService.saveRestaurant(restaurantDTO, user);
     }
 
@@ -41,15 +36,7 @@ public class RestaurantController {
     }
 
     @DeleteMapping("/restaurants/{placeId}")
-    public ResponseEntity<Restaurant> deleteRestaurant(@PathVariable String placeId, @RequestHeader("Authorization") String authorization) {
-        User user = sessionService.getUserBySessionToken(extractSessionToken(authorization));
+    public ResponseEntity<Restaurant> deleteRestaurant(@PathVariable String placeId, @AuthenticationPrincipal User user) {
         return this.restaurantService.removeFavoriteRestaurant(placeId, user);
-    }
-
-    private String extractSessionToken(String authorization) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new InvalidSessionTokenException("Missing or malformed Authorization header");
-        }
-        return authorization.substring("Bearer ".length());
     }
 }

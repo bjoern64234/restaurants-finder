@@ -7,6 +7,7 @@ import org.example.backend.security.RestAuthenticationEntryPoint;
 import org.example.backend.security.SessionTokenAuthenticationFilter;
 import org.example.backend.services.SessionService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,6 +35,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/register", "/api/login", "/api/search", "/api/autocomplete").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/restaurants/*").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
                         .anyRequest().authenticated()
                 )
