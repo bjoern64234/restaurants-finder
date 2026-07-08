@@ -6,7 +6,6 @@ import org.example.backend.dtos.auth.RegisterRequest;
 import org.example.backend.entities.User;
 import org.example.backend.exceptions.DuplicateUserException;
 import org.example.backend.exceptions.InvalidCredentialsException;
-import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.repos.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -60,14 +59,7 @@ public class UserService {
         return sessionToken;
     }
 
-    public void logout(String sessionToken) {
-        User user = userRepository.findBySessionToken(sessionToken)
-                .orElseThrow(() -> new InvalidSessionTokenException("Session token is invalid or already expired"));
-
-        if (user.getSessionTokenExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new InvalidSessionTokenException("Session token is invalid or already expired");
-        }
-
+    public void logout(User user) {
         user.setSessionToken(null);
         user.setSessionTokenExpiresAt(null);
         userRepository.save(user);

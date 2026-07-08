@@ -5,7 +5,6 @@ import org.example.backend.dtos.auth.RegisterRequest;
 import org.example.backend.entities.User;
 import org.example.backend.exceptions.DuplicateUserException;
 import org.example.backend.exceptions.InvalidCredentialsException;
-import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.repos.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,38 +140,17 @@ class UserServiceTest {
     }
 
     @Test
-    void logout_shouldClearSessionToken_whenTokenIsValid() {
+    void logout_shouldClearSessionToken() {
         User user = new User();
         user.setSessionToken("valid-token");
         user.setSessionTokenExpiresAt(LocalDateTime.now().plusHours(1));
 
-        when(userRepository.findBySessionToken("valid-token")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        userService.logout("valid-token");
+        userService.logout(user);
 
         assertNull(user.getSessionToken());
         assertNull(user.getSessionTokenExpiresAt());
         verify(userRepository).save(user);
-    }
-
-    @Test
-    void logout_shouldThrow_whenTokenDoesNotExist() {
-        when(userRepository.findBySessionToken("unknown-token")).thenReturn(Optional.empty());
-
-        assertThrows(InvalidSessionTokenException.class, () -> userService.logout("unknown-token"));
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    void logout_shouldThrow_whenTokenIsExpired() {
-        User user = new User();
-        user.setSessionToken("expired-token");
-        user.setSessionTokenExpiresAt(LocalDateTime.now().minusHours(1));
-
-        when(userRepository.findBySessionToken("expired-token")).thenReturn(Optional.of(user));
-
-        assertThrows(InvalidSessionTokenException.class, () -> userService.logout("expired-token"));
-        verify(userRepository, never()).save(any(User.class));
     }
 }

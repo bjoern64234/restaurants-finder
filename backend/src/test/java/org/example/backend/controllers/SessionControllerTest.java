@@ -1,22 +1,26 @@
 package org.example.backend.controllers;
 
+import org.example.backend.configurations.SecurityConfig;
 import org.example.backend.entities.User;
 import org.example.backend.exceptions.InvalidSessionTokenException;
+import org.example.backend.security.OAuth2AuthenticationSuccessHandler;
+import org.example.backend.security.OAuthUserService;
+import org.example.backend.security.RestAuthenticationEntryPoint;
 import org.example.backend.services.SessionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(SessionController.class)
+@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
 class SessionControllerTest {
 
     @Autowired
@@ -24,6 +28,12 @@ class SessionControllerTest {
 
     @MockitoBean
     private SessionService sessionService;
+
+    @MockitoBean
+    private OAuthUserService oAuthUserService;
+
+    @MockitoBean
+    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     private User user;
 
@@ -45,8 +55,6 @@ class SessionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("janedoe"))
                 .andExpect(jsonPath("$.email").value("jane@example.com"));
-
-        verify(sessionService).getUserBySessionToken(eq("valid-token"));
     }
 
     @Test
@@ -67,8 +75,8 @@ class SessionControllerTest {
     }
 
     @Test
-    void getCurrentUser_shouldReturnBadRequest_whenAuthorizationHeaderIsMissing() throws Exception {
+    void getCurrentUser_shouldReturnUnauthorized_whenAuthorizationHeaderIsMissing() throws Exception {
         mockMvc.perform(get("/api/session"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnauthorized());
     }
 }
