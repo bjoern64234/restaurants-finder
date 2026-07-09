@@ -9,7 +9,6 @@ import org.example.backend.exceptions.InvalidCredentialsException;
 import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.security.OAuth2AuthenticationSuccessHandler;
 import org.example.backend.security.OAuthUserService;
-import org.example.backend.security.RestAuthenticationEntryPoint;
 import org.example.backend.services.SessionService;
 import org.example.backend.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
+@Import({SecurityConfig.class})
 class UserControllerTest {
 
     @Autowired

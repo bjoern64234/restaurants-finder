@@ -7,7 +7,6 @@ import org.example.backend.entities.User;
 import org.example.backend.exceptions.InvalidSessionTokenException;
 import org.example.backend.security.OAuth2AuthenticationSuccessHandler;
 import org.example.backend.security.OAuthUserService;
-import org.example.backend.security.RestAuthenticationEntryPoint;
 import org.example.backend.services.RestaurantService;
 import org.example.backend.services.SessionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(RestaurantController.class)
-@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
+@Import({SecurityConfig.class})
 class RestaurantControllerTest {
 
     @Autowired

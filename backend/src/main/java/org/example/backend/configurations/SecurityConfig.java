@@ -3,18 +3,19 @@ package org.example.backend.configurations;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.security.OAuth2AuthenticationSuccessHandler;
 import org.example.backend.security.OAuthUserService;
-import org.example.backend.security.RestAuthenticationEntryPoint;
 import org.example.backend.security.SessionTokenAuthenticationFilter;
 import org.example.backend.services.SessionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -24,7 +25,6 @@ public class SecurityConfig {
 
     private final OAuthUserService oAuthUserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final SessionService sessionService;
 
     @Value("${frontend.url:http://localhost:5173}")
@@ -41,12 +41,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/register", "/api/login", "/api/search", "/api/autocomplete").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/restaurants/*").permitAll()
-                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/session", "/api/logout", "/api/restaurants").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/restaurants/*").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/restaurants").authenticated()
+                        .anyRequest().permitAll()
                 )
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(restAuthenticationEntryPoint))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(new SessionTokenAuthenticationFilter(sessionService), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(oAuthUserService))
