@@ -21,8 +21,12 @@
     filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.75)); /* umfasst auch den Pfeil */
 }
 
-leaflet-tooltip:has(.active) {
+.leaflet-tooltip:has(.active) {
     background-color: pink;
+}
+
+.leaflet-tooltip-top:has(.active)::before {
+    border-top-color: pink;
 }
 
 .custom-cluster {
