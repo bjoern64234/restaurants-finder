@@ -50,6 +50,7 @@ class SecurityConfigIntegrationTest {
         user.setPassword(passwordEncoder.encode("password123"));
         user.setSessionToken("valid-token");
         user.setSessionTokenExpiresAt(LocalDateTime.now().plusHours(1));
+        userRepository.save(user);
     }
 
     @Test
