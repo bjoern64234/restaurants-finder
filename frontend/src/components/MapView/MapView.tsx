@@ -83,7 +83,10 @@ export default function MapView() {
     }, []);
 
     useEffect(() => {
-        if (!isAuthenticated) return;
+        if (!isAuthenticated) {
+            setFavoriteIdsByPlaceId(new Map())
+            return
+        };
         getFavoriteRestaurants()
             .then(res => setFavoriteIdsByPlaceId(new Map(res.data.map(favorite => [favorite.placeId, favorite.id]))))
             .catch(error => console.error("Favoriten konnten nicht geladen werden", error));
