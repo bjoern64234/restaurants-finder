@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/", "/index.html", "/assets/**", "/*.svg", "/*.png", "/*.ico").permitAll()
                         .requestMatchers("/api/register", "/api/login", "/api/search", "/api/autocomplete").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/restaurants/*").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
@@ -52,7 +53,8 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo.userService(oAuthUserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler((_, response, _) ->
-                                response.sendRedirect(frontendUrl + "?authError=true"))
+                                response.sendRedirect(
+                                        frontendUrl + "?authError=true"))
                 );
 
         return http.build();
