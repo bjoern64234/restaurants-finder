@@ -16,7 +16,7 @@ export function RestaurantMarker({restaurant, favoriteId, onFavorited, onUnfavor
     return (
         <Marker position={[lat, lon]} icon={customIcon}>
             <Tooltip permanent offset={[0, -20]} direction={"top"} interactive>
-                {name}
+                <span className={favoriteId ? "active" : ""}>{name}</span>
             </Tooltip>
             <Popup>
                 <div style={{minWidth: "220px"}}>
