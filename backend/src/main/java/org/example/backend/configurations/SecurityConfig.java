@@ -3,19 +3,21 @@ package org.example.backend.configurations;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.security.OAuth2AuthenticationSuccessHandler;
 import org.example.backend.security.OAuthUserService;
-import org.example.backend.security.RestAuthenticationEntryPoint;
 import org.example.backend.security.SessionTokenAuthenticationFilter;
 import org.example.backend.services.SessionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Configuration
 @EnableWebSecurity
@@ -24,7 +26,6 @@ public class SecurityConfig {
 
     private final OAuthUserService oAuthUserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final SessionService sessionService;
 
     @Value("${frontend.url:http://localhost:5173}")
@@ -47,14 +48,18 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(restAuthenticationEntryPoint))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(new SessionTokenAuthenticationFilter(sessionService), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(oAuthUserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .failureHandler((_, response, _) ->
-                                response.sendRedirect(
-                                        frontendUrl + "?authError=true"))
+                        .failureHandler((_, response, exception) ->
+                                response.sendRedirect(UriComponentsBuilder.fromUriString(frontendUrl)
+                                        .queryParam("authError", exception.getMessage())
+                                        .encode()
+                                        .build()
+                                        .toUriString()))
                 );
 
         return http.build();

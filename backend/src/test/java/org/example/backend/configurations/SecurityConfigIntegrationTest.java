@@ -50,7 +50,7 @@ class SecurityConfigIntegrationTest {
         user.setPassword(passwordEncoder.encode("password123"));
         user.setSessionToken("valid-token");
         user.setSessionTokenExpiresAt(LocalDateTime.now().plusHours(1));
-        user = userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Test
@@ -126,5 +126,33 @@ class SecurityConfigIntegrationTest {
                 .andExpect(status().isNoContent());
 
         assertTrue(userRepository.findBySessionToken("valid-token").isEmpty());
+    }
+
+    @Test
+    void restaurantDetails_shouldBeAccessible_withoutAuthentication() throws Exception {
+        mockMvc.perform(get("/api/restaurants/does-not-exist"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void favoriteRestaurants_shouldReturnUnauthorized_whenNoTokenIsProvided() throws Exception {
+        mockMvc.perform(get("/api/restaurants"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void oauth2Authorization_shouldRedirectToProvider_withoutAuthentication() throws Exception {
+        mockMvc.perform(get("/oauth2/authorization/github"))
+                .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    void oauth2Login_shouldRedirectWithAuthError_whenAuthenticationFails() throws Exception {
+        mockMvc.perform(get("/login/oauth2/code/github").param("code", "irrelevant").param("state", "unknown-state"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(result -> {
+                    String location = result.getResponse().getRedirectedUrl();
+                    assertTrue(location != null && location.startsWith("http://localhost:5173") && location.contains("authError="));
+                });
     }
 }

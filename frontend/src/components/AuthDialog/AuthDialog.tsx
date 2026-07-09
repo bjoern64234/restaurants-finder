@@ -22,10 +22,17 @@ type FormValues = {
 
 export function AuthDialog({open, onClose}: Readonly<Props>): ReactElement {
     const dialogRef = useRef<HTMLDialogElement>(null);
-    const {login: setAuthenticatedSession} = useAuth();
+    const {login: setAuthenticatedSession, oauthError, clearOauthError} = useAuth();
     const [mode, setMode] = useState<Mode>("login");
     const [error, setError] = useState<string | null>(null);
     const [info, setInfo] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (open && oauthError) {
+            setError(oauthError);
+            clearOauthError();
+        }
+    }, [open, oauthError, clearOauthError]);
 
     const {
         register: formField,

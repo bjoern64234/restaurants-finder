@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestClient;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,15 +40,33 @@ public class OAuthUserService implements OAuth2UserService<OAuth2UserRequest, OA
             email = fetchPrimaryVerifiedEmail(request.getAccessToken().getTokenValue());
         }
         if (email == null) {
-            throw new OAuth2AuthenticationException("GitHub account has no accessible verified email address");
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("email_not_found"),
+                    "GitHub account has no accessible verified email address");
         }
+
         attributes.put(EMAIL_ATTRIBUTE, email);
 
-        if (userRepository.findByEmail(email).isEmpty()) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            // Account already exists with another authentication method
+            if (user.getPassword() != null || !"github".equalsIgnoreCase(user.getProvider())) {
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error("account_conflict"),
+                        "An account with this email already exists using a different sign-in method.");
+            }
+        } else {
             createGithubUser(email, attributes);
         }
 
-        return new DefaultOAuth2User(oAuth2User.getAuthorities(), attributes, "id");
+        return new DefaultOAuth2User(
+                oAuth2User.getAuthorities(),
+                attributes,
+                "id"
+        );
     }
 
     OAuth2User fetchOAuth2User(OAuth2UserRequest request) {
