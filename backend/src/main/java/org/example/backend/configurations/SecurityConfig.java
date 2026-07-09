@@ -42,10 +42,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/session", "/api/logout", "/api/restaurants").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/restaurants/*").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/restaurants").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/index.html", "/assets/**", "/*.svg", "/*.png", "/*.ico").permitAll()
+                        .requestMatchers("/api/register", "/api/login", "/api/search", "/api/autocomplete").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/restaurants/*").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
