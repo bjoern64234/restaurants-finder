@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Configuration
 @EnableWebSecurity
@@ -52,8 +53,12 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(oAuthUserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .failureHandler((_, response, _) ->
-                                response.sendRedirect(frontendUrl + "?authError=true"))
+                        .failureHandler((_, response, exception) ->
+                                response.sendRedirect(UriComponentsBuilder.fromUriString(frontendUrl)
+                                        .queryParam("authError", exception.getMessage())
+                                        .encode()
+                                        .build()
+                                        .toUriString()))
                 );
 
         return http.build();

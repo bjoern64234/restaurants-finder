@@ -90,7 +90,9 @@ class OAuthUserServiceTest {
         Map<String, Object> attributes = Map.of("id", "12345", "email", "jane@example.com", "login", "janedoe");
         OAuthUserService service = serviceReturning(stubbedGithubUser(attributes));
 
-        when(userRepository.findByEmail("jane@example.com")).thenReturn(Optional.of(new User()));
+        User existingUser = new User();
+        existingUser.setProvider("github");
+        when(userRepository.findByEmail("jane@example.com")).thenReturn(Optional.of(existingUser));
 
         OAuth2User result = service.loadUser(buildUserRequest());
 
@@ -100,6 +102,40 @@ class OAuthUserServiceTest {
 
         assertThat(email).isNotNull();
         assertThat(email).isEqualTo("jane@example.com");
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void loadUser_throwsOAuth2AuthenticationException_whenExistingUserHasPassword() {
+        Map<String, Object> attributes = Map.of("id", "12345", "email", "jane@example.com", "login", "janedoe");
+        OAuthUserService service = serviceReturning(stubbedGithubUser(attributes));
+
+        User existingUser = new User();
+        existingUser.setProvider("github");
+        existingUser.setPassword("hashed-password");
+        when(userRepository.findByEmail("jane@example.com")).thenReturn(Optional.of(existingUser));
+
+        assertThatThrownBy(() -> service.loadUser(buildUserRequest()))
+                .isInstanceOf(OAuth2AuthenticationException.class)
+                .hasMessage("An account with this email already exists using a different sign-in method.");
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void loadUser_throwsOAuth2AuthenticationException_whenExistingUserHasDifferentProvider() {
+        Map<String, Object> attributes = Map.of("id", "12345", "email", "jane@example.com", "login", "janedoe");
+        OAuthUserService service = serviceReturning(stubbedGithubUser(attributes));
+
+        User existingUser = new User();
+        existingUser.setProvider("google");
+        when(userRepository.findByEmail("jane@example.com")).thenReturn(Optional.of(existingUser));
+
+        assertThatThrownBy(() -> service.loadUser(buildUserRequest()))
+                .isInstanceOf(OAuth2AuthenticationException.class)
+                .hasMessage("An account with this email already exists using a different sign-in method.");
+
+        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -187,7 +223,8 @@ class OAuthUserServiceTest {
         ));
 
         assertThatThrownBy(() -> service.loadUser(buildUserRequest()))
-                .isInstanceOf(OAuth2AuthenticationException.class);
+                .isInstanceOf(OAuth2AuthenticationException.class)
+                .hasMessage("GitHub account has no accessible verified email address");
 
         verifyNoInteractions(userRepository);
     }

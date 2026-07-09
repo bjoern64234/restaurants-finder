@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import type {ReactElement} from "react";
 import {AuthDialog} from "../AuthDialog/AuthDialog";
 import {AccountDialog} from "../AccountDialog/AccountDialog";
@@ -8,7 +8,11 @@ import {useAuth} from "../../states/AuthContext.tsx"
 
 export function AccountButton(): ReactElement {
     const [open, setOpen] = useState(false);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, oauthError } = useAuth();
+
+    useEffect(() => {
+        if (oauthError) setOpen(true);
+    }, [oauthError]);
 
     return (
         <>
